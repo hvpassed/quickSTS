@@ -7,7 +7,47 @@ export default{
       levels:0,
       //"level":{key:[top,left,radius]}
       Pos:new Map(),
-
+      current:[-1,0],
+    },
+    first(){
+        if(this.data.graph){
+            this.data.current=[-1,0];
+            var i = this.data.current[0],j = this.data.current[1];
+            return [this.data.current,this.data.graph[i][i+"-"+j],this.data.Pos[i][i+"-"+j]];
+        }else{
+            return null;
+        }
+    },
+    child(level,node){
+        var key = level+"-"+node;
+        var ret = new Array();
+        if(level==(this.data.levels-1)){
+            return null;
+        }
+        for(var i=0;i<this.data.graph[level+1].length;i++){
+            var chilekey = (level+1)+"-"+i;
+            
+            for(var j =0,pos=2;j<this.data.graph[level+1][chilekey][1];j++,pos++){
+                if(this.data.graph[level+1][chilekey][pos]===key){
+                    ret.push([level+1,i]);
+                }
+            }
+        }
+        return ret;
+    },
+    next(){
+        if(this.data.current[0]==(this.data.levels-1))
+        {
+            return null;
+        }else if(this.data.current[1]==(this.data.graph[this.data.current[0]].length-1))
+        {
+            this.data.current=[this.data.current[0]+1,0];
+        }
+        else{
+            this.data.current[1]+=1;
+        }
+        var i = this.data.current[0],j = this.data.current[1];
+        return [this.data.current,this.data.graph[i][i+"-"+j],this.data.Pos[i][i+"-"+j]];
     },
     generateGaussianNoise(mean, stdDev) {
         // 使用 Box-Muller 转换生成正态分布的随机数
@@ -39,10 +79,56 @@ export default{
         return res;
     },
     generatePos(width,height,radius){
-        var deltaY = height/this.data.levels;
+        var deltaY = (height+100)/(this.data.levels+1);
+        //从top-100开始
+        var curtop = 100;
+        for(var i = -1;i<this.data.levels;i++){
+            if(i==-1){
+                var mp = new Map();
+                mp["-1-0"] = [100,(width)/2,radius];
+                this.data.Pos["-1"]=mp;
+            }
+            else if(i==this.data.levels-1){
+                var mp = new Map();
+                curtop+=deltaY;
+                mp[i+"-"+0]=[10*this.generateGaussianNoise(0,1)+curtop,(width)/2,radius];
+                this.data.Pos[i]=mp;
+            }
+            else{
+                curtop+=deltaY;
+                var deltaX = (width-radius*2)/(this.data.graph[i].length);
+                var curx = radius+deltaX/2;
+                var mp = new Map();
+                for(var j=0;j<this.data.graph[i].length;j++){
+                    var noisex = (Math.random()-0.5)*deltaX;
+                    var pl = curx+noisex;
+                    if(j!=0 && (Math.abs(pl-mp[i+'-'+(j-1)])<=2*radius)){
+                        pl+=2*radius;
+                    }
+                    mp[i+"-"+j]=[10*this.generateGaussianNoise(0,1)+curtop,pl,radius];
+                    
+                    curx+=deltaX;
+                }
+                // curtop+=deltaY;
+                // var deltaX = (width-this.data.graph[i].length*(radius*2))/(this.data.graph[i].length+2);
+                // var x =  width/(2*this.data.graph[i].length+1)
+                // var curx = deltaX;
+                // var mp = new Map();
+                // for(var j=0;j<this.data.graph[i].length;j++){
+                //     var noisex = this.generateGaussianNoise(0,1);
+                //     var pl = curx+(1-noisex)*x;
+                    
+                //     mp[i+"-"+j]=[10*this.generateGaussianNoise(0,1)+curtop,pl,radius];
+                    
+                //     curx+=deltaX;
+                // }
+                this.data.Pos[i]=mp;
+            }
+        }
         
     },
     generateNodes(totalLevel,rNum){
+        this.data.current=[-1,0];
         this.data.levels = totalLevel;
         for(var i = 0;i<totalLevel;i++){
             var mp =new Map();

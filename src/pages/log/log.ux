@@ -14,13 +14,10 @@
 <script>
 import router from '@system.router'
 //import app from "../../helper/global"
-import graph from '../../helper/graph'
+
 export default{
     logClick(){
-        graph.generateNodes(5,5);
-        graph.generatePath();
-        this.$app.$def.globalData.graph = graph
-        console.log(this.$app.$def.globalData)
+
         router.push({
             uri:"/pages/map"
         })

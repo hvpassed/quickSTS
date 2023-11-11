@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import graph from "../../helper/graph"
 export default{
 
     onShow() {
@@ -14,21 +15,62 @@ export default{
         //console.log(app)
         this.$element('bgcanvas').getBoundingClientRect({
             success:(data)=>{
-                console.log(that.$app.$def.globalData)
-                // var deltaY = data.height/graph.data.levels;
-                // console.log(deltaY)
-                // for(var i = -1;i<graph.data.levels;i++){
-                //     if(i==-1){
-
-                //     }else if(i==graph.data.levels-1){
-
-                //     }else{
-
-                //     }
-                // }
+                graph.generateNodes(5,5);
+                graph.generatePath();
+                graph.generatePos(data.width,data.height,20);
+                console.log(graph.first());
+                console.log(graph.next());
+                console.log(graph.child(-1,0))
+                this.$app.$def.globalData.graph = graph
+                console.log(this.$app.$def.globalData)
+                that.drawMap();
             }
         })
+        
+    },
+    drawMap(){
+        console.log(1)
+        let canvas = this.$element('bgcanvas');
+        let ctx = canvas.getContext('2d');
+        var g = this.$app.$def.globalData.graph;
+        for(var i = 0;i<g.data.levels;i++){
+            for(var j = 0;j<g.data.graph[i].length;j++){
+                var ls = g.data.graph[i][i+"-"+j];
+                var poss =g.data.Pos[i][i+"-"+j];
+                this.drawCicle(ctx,poss[1],poss[0],poss[2]);
+                //console.log(pos)
+                for(var k=0,pos=2;k<ls[1];k++,pos++){
+                    var preName = ls[pos];
+                    var prePos = g.data.Pos[i-1][preName];
+                    var startX=prePos[1],startY=prePos[0];
+                    var endX = poss[1],endY=poss[0];
+                    //console.log([startX,startY,endX[1],endY[0]])
+                    this.drawLine(ctx,startX,startY,endX,endY);
+                }
+            }
+        }
+    },
+    drawLine(ctx,x,y,ex,ey){
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.setLineDash([5, 5]); // 数组中的值表示实线和空白的像素数
+        ctx.lineTo(ex, ey);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.closePath();
+    },
+    drawCicle(ctx,centerX,centerY,radius){
 
+    ctx.beginPath();
+
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 2;
+
+    ctx.stroke();
+    ctx.closePath();
     },
     canvasClick(e){
         console.log(e);
