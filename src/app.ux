@@ -12,6 +12,14 @@ hook2global.$utils = $utils
 hook2global.$apis = $apis
 
 export default {
-  onCreate() {}
+  onCreate() {},
+  globalData:{
+    graph:null,
+  }
 }
 </script>
+<style>
+*{
+  font-family: 'Microsoft YaHei',
+  margin:0px;
+}

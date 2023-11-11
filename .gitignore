@@ -2,7 +2,8 @@
 node_modules
 /dist
 /build
-
+/STS
+/src/assets
 # sign
 
 # local env files
