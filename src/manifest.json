@@ -29,8 +29,11 @@
     "logLevel": "debug"
   },
   "router": {
-    "entry": "pages/mainmenu",
+    "entry": "pages/db",
     "pages": {
+      "pages/db": {
+        "component": "db"
+      },
       "pages/mainmenu": {
         "component": "menu"
       },
@@ -44,7 +47,7 @@
 
   },
   "display": {
-    "fullScreen": true,
+    "fullScreen": false,
     "titleBar": false,
     "menuBarData": {
       "menuBar": false

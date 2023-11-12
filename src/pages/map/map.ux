@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         
-        <canvas class="bg" id="bgcanvas"  onclick="canvasClick"></canvas>    
+        <canvas class="bg" id="bgcanvas"  onclick="handleClick"></canvas>    
         <!--image class="bg img" src="../../assets/images/map/mapMid.png"></image-->    
     </div>
 </template>
@@ -15,12 +15,7 @@ export default{
         //console.log(app)
         this.$element('bgcanvas').getBoundingClientRect({
             success:(data)=>{
-                graph.generateNodes(5,5);
-                graph.generatePath();
-                graph.generatePos(data.width,data.height,20);
-                console.log(graph.first());
-                console.log(graph.next());
-                console.log(graph.child(-1,0))
+                graph.init(5,5,data.width,data.height,30);
                 this.$app.$def.globalData.graph = graph
                 console.log(this.$app.$def.globalData)
                 that.drawMap();
@@ -29,10 +24,10 @@ export default{
         
     },
     drawMap(){
-        console.log(1)
         let canvas = this.$element('bgcanvas');
         let ctx = canvas.getContext('2d');
         var g = this.$app.$def.globalData.graph;
+        this.drawCicle(ctx,g.data.Pos[-1][-1+"-"+0][1],g.data.Pos[-1][-1+"-"+0][0],g.data.Pos[-1][-1+"-"+0][2]);
         for(var i = 0;i<g.data.levels;i++){
             for(var j = 0;j<g.data.graph[i].length;j++){
                 var ls = g.data.graph[i][i+"-"+j];
@@ -63,18 +58,38 @@ export default{
     },
     drawCicle(ctx,centerX,centerY,radius){
 
-    ctx.beginPath();
+        ctx.beginPath();
 
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "blue";
-    ctx.lineWidth = 2;
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
 
-    ctx.stroke();
-    ctx.closePath();
+        ctx.stroke();
+        ctx.closePath();
     },
-    canvasClick(e){
+    handleClick(e){
+        var flag = true;
         console.log(e);
-    }
+        var clickX=e.offsetX,clickY=e.offsetY;
+        graph.first();
+        while(true){
+            var obj = graph.next();
+            if(!obj){
+                break;
+            }
+            var cy = obj[2][0],cx=obj[2][1],radius=obj[2][2];
+            //console.log(cx,cy);
+            //console.log((cx-clickX)**2+(cy-clickY)**2);
+            if(((cx-clickX)**2+(cy-clickY)**2)<=radius**2){
+                console.log(obj);
+                flag=false;
+                break;
+            }
+        }
+        if(flag){
+            console.log("none")
+        }
+    },
 }
 </script>
  

@@ -9,6 +9,11 @@ export default{
       Pos:new Map(),
       current:[-1,0],
     },
+    init(totalLevel,avgnode,width,height,radius){
+        this.generateNodes(totalLevel,avgnode);
+        this.generatePath();
+        this.generatePos(width,height,radius);
+    },
     first(){
         if(this.data.graph){
             this.data.current=[-1,0];
@@ -36,7 +41,8 @@ export default{
         return ret;
     },
     next(){
-        if(this.data.current[0]==(this.data.levels-1))
+        var ci=this.data.current[0],cj=this.data.current[1];
+        if(this.data.current[0]==(this.data.levels))
         {
             return null;
         }else if(this.data.current[1]==(this.data.graph[this.data.current[0]].length-1))
@@ -46,8 +52,8 @@ export default{
         else{
             this.data.current[1]+=1;
         }
-        var i = this.data.current[0],j = this.data.current[1];
-        return [this.data.current,this.data.graph[i][i+"-"+j],this.data.Pos[i][i+"-"+j]];
+        
+        return [[ci,cj],this.data.graph[ci][ci+"-"+cj],this.data.Pos[ci][ci+"-"+cj]];
     },
     generateGaussianNoise(mean, stdDev) {
         // 使用 Box-Muller 转换生成正态分布的随机数
@@ -102,7 +108,7 @@ export default{
                 for(var j=0;j<this.data.graph[i].length;j++){
                     var noisex = (Math.random()-0.5)*deltaX;
                     var pl = curx+noisex;
-                    if(j!=0 && (Math.abs(pl-mp[i+'-'+(j-1)])<=2*radius)){
+                    if(j!=0 && (Math.abs(pl-mp[i+'-'+(j-1)][1])<=2*radius)){
                         pl+=2*radius;
                     }
                     mp[i+"-"+j]=[10*this.generateGaussianNoise(0,1)+curtop,pl,radius];
