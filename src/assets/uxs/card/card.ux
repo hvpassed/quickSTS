@@ -1,0 +1,122 @@
+<template>
+<div  class="img_wrapper" style="width:{{cardPara.width}}px;height:{{height}}px; border: {{borderPx}}px solid #ffea00;" onclick="handleClicking">
+    <image src="../../../assets/images/cards/Card Template.png" style="width:{{cardPara.width}}px;height:auto;"></image>
+    <div class="cardText cardName" style="top:{{top1}}px;left:{{left1}}px;">
+        <text class="cardName">{{cardPara.cardName}}</text>
+    </div>
+    <div class="cardText cardCoast" style="top:{{top2}}px;left:{{left1}}px;">
+        <text class="costText">{{cardPara.cardCost}}</text>
+    </div>
+    <div class="cardText cardDc" style="top:{{top3}}px;left:{{left1}}px;">
+        <text>{{cardPara.cardDc}}</text>
+    </div>
+
+</div>
+</template>
+
+<script>
+export default{
+    data(){
+        return {
+            cardPara:this.cardProp,
+            borderPx:0,
+            select:false,
+        }
+    },
+    props:{
+        cardProp:{
+            type:Object,
+            default:{
+                id:0,
+                width:150,
+                cardName:'---',
+                cardCost:1,
+                cardDc:'---'
+            }
+        },
+        propSelected:null,
+        
+    },
+    computed:{
+
+        height(){
+            return this.cardProp.width*1.406625;
+        },
+        top1(){
+            return this.height*0.07;
+        },
+        top2(){
+            return this.height*0.52;
+        },
+        top3(){
+            return this.height*0.63;
+        },
+        left1(){
+            return this.cardProp.width*0.1;
+        }
+
+    },
+    onInit(){
+        //console.log(this.cardProp)
+        this.$watch('cardProp','cardPropChanged')
+        this.$watch("propSelected",'cardSelectChanged')
+    },
+    onReady() {
+        //console.log(this.cardProp)
+
+    },
+    cardPropChanged(nVal,oVal){
+
+        this.cardPara=nVal;
+    },
+    cardSelectChanged(nVal,oVal){
+
+        this.propSelected=nVal;
+        if(nVal!=null&&nVal==this.cardPara.id){
+
+            this.borderPx=2;
+            this.select=true;
+        }else{
+            this.borderPx=0;
+            this.select=false;
+        }
+    },
+    handleClicking(e){
+        this.$emit("cardClicking",{id:this.cardPara.id})
+    }   
+}
+</script>
+
+<style lang="less">
+
+#img_wrapper{
+    position: relative;
+    top:0px;
+    left: 0px;
+}
+/* image{
+    position: relative;
+    top:0px;
+    left: 0px;
+} */
+.cardText{
+    position:absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 80%;
+
+}
+.cardName{
+
+    height: 40%;
+}
+.cardCoast{
+    height: 7%;
+}
+.cardDc{
+    height: 30%;
+}
+
+</style>

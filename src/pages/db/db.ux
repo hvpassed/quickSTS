@@ -1,20 +1,112 @@
-<import name="cards" src="../../assets/uxs/cards.ux"></import>
- 
+<!-- <import name="card" src="../../assets/uxs/card/card.ux"></import> -->
+<import name="cards" src="../../assets/uxs/card/cards.ux"></import>
+<import name="button" src="../../assets/uxs/button/HexagonalButton.ux"></import>
 <template>
-<div>
+<div class="wrapper" >
     <!--text>123</text-->
-    <cards card-prop={{cardObj}}></cards>
+    <cards class="cardsHand" style="transform:{translateY(20px)};" card-paras={{cards}} oncard-clickd="handleCardClicked" oncards-seleting=handlecardSelecting prop-sended=sending></cards>
+    <button class="sendCardBtn" prop-text="出牌" prop-style="{{btn1Style}}" onsend-btn-clicked=sendBtnClicked></button>
+    <!-- <image class="btn" src="../../assets/images/button/buttonL.png"></image> -->
 </div>
 </template>
 <script>
 export default{
-    private:{
-        cardObj:{
-            width:400,
-            cardName:"test",
-            cardCost:2,
-            cardDc:"test2",
+    data(){
+        return {
+            selected:null,
+            sending:null,
+            btn1Style:{
+                height:81,
+                width:234,
+                fontSize:36
+            },
+            cards:[
+                {
+                    id:0,
+                    width:150,
+                    cardName:'---',
+                    cardCost:1,
+                    cardDc:'---'
+                },
+                {
+                    id:1,
+                    width:150,
+                    cardName:'---',
+                    cardCost:2,
+                    cardDc:'---'
+                },
+                {
+                    id:2,
+                    width:150,
+                    cardName:'---',
+                    cardCost:3,
+                    cardDc:'---'
+                },
+                {
+                    id:3,
+                    width:150,
+                    cardName:'---',
+                    cardCost:4,
+                    cardDc:'---'
+                },
+                {
+                    id:4,
+                    width:150,
+                    cardName:'---',
+                    cardCost:5,
+                    cardDc:'---'
+                }
+                
+            ]
+        };
+    },
+    onInit() {
+
+    },
+    handlecardSelecting(e){
+        this.selected=e.detail.id;
+
+    },
+    sendCards(id){
+
+
+
+        this.sendCardsById(id);
+    },
+    sendCardsById(id){
+        this.cards=this.del(this.cards,id)
+    },
+    del(arr,id){
+        let sid = id;
+        arr = arr.filter(element=> element.id!=sid);
+        //console.log(arr)
+        return arr;
+    },
+    sendBtnClicked(){
+
+        if(this.selected!=null){
+            
+            this.sendCards(this.selected)
+            this.sending=true;
+            console.log(this.sending)
+            this.sending=null;
         }
     }
 }
 </script>
+<style>
+.wrapper{
+    position: relative;
+    background-image: url("../../assets/images/battlescence/BattleScence1.jpg");
+}
+.cardsHand{
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+}
+.sendCardBtn{
+    position: fixed;
+    right: 0px;
+    bottom: 300px;
+}
+</style>
