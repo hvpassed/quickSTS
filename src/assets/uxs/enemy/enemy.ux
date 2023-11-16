@@ -1,0 +1,66 @@
+<import name="hpbar" src="../others/HpBar.ux"></import>
+ 
+<template>
+    <div  class="enemy_wrapper" style="height:{{height}}px;width:{{width}}px;">
+        <div style="height:34px;">
+            <hpbar  width=200 prop-max-hp={{maxHp}} prop-now-hp={{nowHp}}></hpbar>
+        </div>
+        <image src="../../images/enemy/skeleton/GIFS/Skeleton Idle.gif" style="height:{{height}}px;width:{{width}}px;" ></image>
+    </div>
+</template>
+<script>
+// import enemy from "../../../helper/enemy/enemy.js";
+export default {
+    data(){
+        return {
+            maxHp:this.propMaxHp,
+            nowHp:this.propNowHp,
+            bar_perct:1
+        }
+    },
+    props:{
+        propMaxHp:{
+            default:100
+        },
+        propNowHp:{
+            default:100
+        },
+        width:{
+            default:100
+        },
+        height:{
+            default:100
+        }
+    },
+    onInit() {
+      this.$watch('propNowHp','handlerpropNowHpChanged');
+    },
+    handlerpropNowHpChanged(nVal,oVal){
+        this.nowHp=nVal;
+        if(this.nowHp<=0){
+            this.nowHp=0
+        }
+
+    },
+    onReady() {
+
+
+    },
+
+}
+</script>
+    
+<style>
+.enemy_wrapper{
+    display: flex;  
+    flex-direction: column;
+    position: relative;
+}
+
+image{
+    object-fit: contain;
+    position: fixed;
+    top: 34px;
+}
+
+</style>

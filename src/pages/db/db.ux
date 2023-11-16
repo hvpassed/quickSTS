@@ -1,18 +1,31 @@
 <!-- <import name="card" src="../../assets/uxs/card/card.ux"></import> -->
 <import name="cards" src="../../assets/uxs/card/cards.ux"></import>
-<import name="button" src="../../assets/uxs/button/HexagonalButton.ux"></import>
+<import name="btn" src="../../assets/uxs/button/HexagonalButton.ux"></import>
+<import name="enemy" src="../../assets/uxs/enemy/enemy.ux"></import>
+<import name="hpbar" src="../../assets/uxs/others/HpBar.ux"></import>
+ 
 <template>
 <div class="wrapper" >
     <!--text>123</text-->
-    <cards class="cardsHand" style="transform:{translateY(20px)};" card-paras={{cards}} oncard-clickd="handleCardClicked" oncards-seleting=handlecardSelecting prop-sended=sending></cards>
-    <button class="sendCardBtn" prop-text="出牌" prop-style="{{btn1Style}}" onsend-btn-clicked=sendBtnClicked></button>
+    <div class="EnergyBadge">
+        <text class="energy">{{NowEnergy}}/{{MaxEnergy}}</text>
+    </div>
+    <enemy width=200 height=200 prop-max-hp={{MaxHp}} prop-now-hp={{NowHp}}></enemy>
+    <cards class="cardsHand" style=transform:translateY(20px) card-paras={{cards}} oncard-clickd="handleCardClicked" oncards-seleting=handlecardSelecting prop-sended=sending></cards>
+    <btn class="sendCardBtn" prop-text="出牌" prop-style="{{btn1Style}}" onclick="sendBtnClicked"></btn>
+    <btn class="endTurnBtn" prop-text="结束回合" prop-style="{{btn1Style}}" onclick="test"></btn>
     <!-- <image class="btn" src="../../assets/images/button/buttonL.png"></image> -->
+   
 </div>
 </template>
 <script>
 export default{
     data(){
         return {
+            NowHp:90,
+            MaxHp:90,
+            MaxEnergy:3,
+            NowEnergy:3,
             selected:null,
             sending:null,
             btn1Style:{
@@ -79,11 +92,11 @@ export default{
     del(arr,id){
         let sid = id;
         arr = arr.filter(element=> element.id!=sid);
-        //console.log(arr)
+        console.log(arr)
         return arr;
     },
     sendBtnClicked(){
-
+        console.log("clicked")
         if(this.selected!=null){
             
             this.sendCards(this.selected)
@@ -91,6 +104,11 @@ export default{
             console.log(this.sending)
             this.sending=null;
         }
+    },
+    test(){
+        this.NowHp-=10;
+
+
     }
 }
 </script>
@@ -99,14 +117,37 @@ export default{
     position: relative;
     background-image: url("../../assets/images/battlescence/BattleScence1.jpg");
 }
+
 .cardsHand{
     position: absolute;
     bottom: 0px;
     left: 0px;
 }
+.endTurnBtn{
+    position: fixed;
+    bottom: 300px;
+    left: -234px;
+}
 .sendCardBtn{
     position: fixed;
     right: 0px;
     bottom: 300px;
+}
+.EnergyBadge{
+    position: fixed;
+    border: 3px solid rgba(0,0,0,0.8);
+    right: 30px;
+    bottom: 500px;
+    background-color: #116f54;
+    height: 100px;
+    width: 100px;
+    transform: rotate(45deg);
+    
+}
+.energy{
+    width: 100px;
+    text-align: center;
+    font-size: 40px;
+    transform: rotate(-45deg);
 }
 </style>

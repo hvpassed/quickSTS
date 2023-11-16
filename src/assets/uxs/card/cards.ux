@@ -1,71 +1,82 @@
 <import name="card" src="./card.ux"></import>
  
 <template>
-<div class="wrapper">
-    <card class="cardEle"  for="value in cards" card-prop={{value}} oncard-clicking="handleCardClicking" prop-selected={{selecting}}></card>
-</div>
+  <div class="wrapper">
+    <card
+      class="cardEle"
+      for="value in cards"
+      card-prop="{{value}}"
+      oncard-clicking="handleCardClicking"
+      prop-selected="{{selecting}}"
+      @click="handleClick"
+    ></card>
+  </div>
 </template>
 <script>
 
-export default{
-    data(){
+export default {
+    data() {
         return {
-            cards:this.cardParas,
-            borderPx:0,
-            selecting:null,
+            cards: this.cardParas,
+            borderPx: 0,
+            selecting: null,
         }
     },
     props: {
-        cardParas:{
-            type:Array,
-            default:[
+        cardParas: {
+            type: Array,
+            default: [
                 {
-                    id:0,
-                    width:400,
-                    cardName:'---',
-                    cardCost:1,
-                    cardDc:'---'
+                    id: 0,
+                    width: 400,
+                    cardName: '---',
+                    cardCost: 1,
+                    cardDc: '---'
                 }
             ]
         },
-        propSended:null,
-        
+        propSended: null,
+
     },
     onInit() {
-      this.$watch("cardParas","cardObjsChanged");
-      this.$watch("propSended","sendedChanged");
-      //this.$on('cardClicked', this.handleCardClickd)
+        this.$watch("cardParas", "cardObjsChanged");
+        this.$watch("propSended", "sendedChanged");
+        //this.$on('cardClicked', this.handleCardClickd)
     },
     onReady() {
 
     },
-    sendedChanged(nVal,oVal){
+    sendedChanged(nVal, oVal) {
         console.log(nVal)
-        if(nVal!=null){
-            this.selecting=null;
+        if (nVal != null) {
+            this.selecting = null;
 
-            this.$emit('cardsSeleting', {id:this.selecting})
+            this.$emit('cardsSeleting', { id: this.selecting })
         }
     },
-    handleCardClicking(e){
-        
-        this.selecting=e.detail.id;
-        this.$emit('cardsSeleting', {id:this.selecting})
+    handleCardClicking(e) {
+
+        this.selecting = e.detail.id;
+        this.$emit('cardsSeleting', { id: this.selecting })
 
     },
-    cardObjsChanged(nval,oval){
-        this.cards=nval;
-        this.cardParas=nval
+    cardObjsChanged(nval, oval) {
+        this.cards = nval;
+        this.cardParas = nval
+    },
+    handleClick(e){
+        console.log(e)
     }
 
 }
 </script>
 <style>
-.wrapper{
-    position: absolute;
+.wrapper {
+  position: absolute;
+  display: flex;
+  justify-content: center;
 }
-.cardEle{
-    position: relative;
-   
+.cardEle {
+  position: relative;
 }
 </style>

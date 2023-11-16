@@ -17,6 +17,10 @@
     },
     {
       "name": "system.fetch"
+    },
+    {
+      "name": "system.contact"
+      
     }
   ],
   "permissions": [
@@ -40,8 +44,8 @@
       "pages/log":{
         "component": "log"
       },
-      "pages/map":{
-        "component": "map"
+      "pages/GameMap":{
+        "component": "GameMap"
       }
     }
 

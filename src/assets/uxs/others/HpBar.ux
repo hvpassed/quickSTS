@@ -1,0 +1,85 @@
+<template>
+    <div class="hp_bar_wrapper" style="width:{{width}}px">
+        <div class="hp_bar_color" style="width:{{width*color_width}}px;" onclick="clicked"></div>
+        <text  style="width:{{width}}px">{{np}}/{{mp}}</text>
+    </div>
+</template>
+
+<script>
+export default {
+    data(){
+        return {
+            color_width:1.0,
+            np:this.propNowHp,
+            mp:this.propMaxHp
+        }
+    },
+    props:{
+        width:{
+            default:100
+        },
+        propMaxHp:{
+            default:100
+        },
+        propNowHp:{
+            default:100
+        },
+    },
+    onInit() {
+      this.$watch("propNowHp","handeleNowHpChange");
+    //   this.$watch("np","handelenpChange");
+    },
+    handeleNowHpChange(nVal,oVal){
+        this.propNowHp=nVal;
+        this.np=nVal
+        if(this.propNowHp<=0){
+            this.propNowHp=0;
+            this.np=0;
+            this.color_width=0;
+        }
+        else{
+            this.color_width=parseFloat(this.np/this.mp);
+        }
+        
+        
+    },
+    // handelenpChange(nVal,oVal){
+    //     this.propNowHp=nVal;
+    //     this.np=nVal
+    //     if(this.propNowHp<=0){
+    //         this.propNowHp=0;
+    //         this.np=0;
+    //         this.color_width=0;
+    //     }
+    //     else{
+    //         this.color_width=parseFloat(this.np/this.mp);
+    //     }
+    // },
+
+}
+</script>
+
+<style>
+.hp_bar_wrapper{
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    position: relative;
+    border: 3px solid #000000;
+}
+div{
+    height:34px;
+    
+}
+.hp_bar_color{
+    position: absolute;
+    height: 34px;
+
+    background-color: #ffc107;
+    border-radius: 10px;
+}   
+text{
+    text-align: center;
+    height:34px;
+}
+</style>

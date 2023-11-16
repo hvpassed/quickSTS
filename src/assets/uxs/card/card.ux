@@ -1,14 +1,14 @@
 <template>
-<div  class="img_wrapper" style="width:{{cardPara.width}}px;height:{{height}}px; border: {{borderPx}}px solid #ffea00;" onclick="handleClicking">
-    <image src="../../../assets/images/cards/Card Template.png" style="width:{{cardPara.width}}px;height:auto;"></image>
-    <div class="cardText cardName" style="top:{{top1}}px;left:{{left1}}px;">
-        <text class="cardName">{{cardPara.cardName}}</text>
+<div  class="img_wrapper" style="width:{{cardPara.width}}px;height:{{height}}px;" onclick="handleClicking">
+    <image src="../../../assets/images/cards/Card Template.png" style="width:{{cardPara.width}}px;" onclick="handleClicking"></image>
+    <div class="cardText cardName" style="top:{{top1}}px;left:{{left1}}px;" onclick="handleClicking">
+        <text class="cardName" onclick="handleClicking" style="color:#{{color}};">{{cardPara.cardName}}</text>
     </div>
-    <div class="cardText cardCoast" style="top:{{top2}}px;left:{{left1}}px;">
-        <text class="costText">{{cardPara.cardCost}}</text>
+    <div class="cardText cardCoast" style="top:{{top2}}px;left:{{left1}}px;" onclick="handleClicking">
+        <text class="costText" style="color:#{{color}};" onclick="handleClicking">{{cardPara.cardCost}}</text>
     </div>
-    <div class="cardText cardDc" style="top:{{top3}}px;left:{{left1}}px;">
-        <text>{{cardPara.cardDc}}</text>
+    <div class="cardText cardDc" style="top:{{top3}}px;left:{{left1}}px;" onclick="handleClicking">
+        <text  style="color:#{{color}};" onclick="handleClicking">{{cardPara.cardDc}} </text>
     </div>
 
 </div>
@@ -21,6 +21,7 @@ export default{
             cardPara:this.cardProp,
             borderPx:0,
             select:false,
+            color:'000',
         }
     },
     props:{
@@ -60,6 +61,10 @@ export default{
         //console.log(this.cardProp)
         this.$watch('cardProp','cardPropChanged')
         this.$watch("propSelected",'cardSelectChanged')
+        this.$watch('borderPx','handleborderPxChanged');
+    },
+    handleborderPxChanged(nVal,oVal){
+        this.borderPx=nVal;
     },
     onReady() {
         //console.log(this.cardProp)
@@ -73,16 +78,19 @@ export default{
 
         this.propSelected=nVal;
         if(nVal!=null&&nVal==this.cardPara.id){
-
+            this.color='ffea00'
             this.borderPx=2;
             this.select=true;
         }else{
+            this.color='000'
             this.borderPx=0;
             this.select=false;
         }
     },
     handleClicking(e){
+        console.log(this.cardProp.id)
         this.$emit("cardClicking",{id:this.cardPara.id})
+        e.stopPropagation()
     }   
 }
 </script>
@@ -90,9 +98,9 @@ export default{
 <style lang="less">
 
 #img_wrapper{
+
     position: relative;
-    top:0px;
-    left: 0px;
+
 }
 /* image{
     position: relative;
@@ -104,7 +112,7 @@ export default{
     display: flex;
     justify-content: center;
     align-items: center;
-
+    
     width: 80%;
 
 }
