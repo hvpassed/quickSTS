@@ -1,0 +1,71 @@
+<import name="card" src="./card.ux"></import>
+ 
+<template>
+<div class="wrapper">
+    <card class="cardEle"  for="value in cards" card-prop={{value}} oncard-clicking="handleCardClicking" prop-selected={{selecting}}></card>
+</div>
+</template>
+<script>
+
+export default{
+    data(){
+        return {
+            cards:this.cardParas,
+            borderPx:0,
+            selecting:null,
+        }
+    },
+    props: {
+        cardParas:{
+            type:Array,
+            default:[
+                {
+                    id:0,
+                    width:400,
+                    cardName:'---',
+                    cardCost:1,
+                    cardDc:'---'
+                }
+            ]
+        },
+        propSended:null,
+        
+    },
+    onInit() {
+      this.$watch("cardParas","cardObjsChanged");
+      this.$watch("propSended","sendedChanged");
+      //this.$on('cardClicked', this.handleCardClickd)
+    },
+    onReady() {
+
+    },
+    sendedChanged(nVal,oVal){
+        console.log(nVal)
+        if(nVal!=null){
+            this.selecting=null;
+
+            this.$emit('cardsSeleting', {id:this.selecting})
+        }
+    },
+    handleCardClicking(e){
+        
+        this.selecting=e.detail.id;
+        this.$emit('cardsSeleting', {id:this.selecting})
+
+    },
+    cardObjsChanged(nval,oval){
+        this.cards=nval;
+        this.cardParas=nval
+    }
+
+}
+</script>
+<style>
+.wrapper{
+    position: absolute;
+}
+.cardEle{
+    position: relative;
+   
+}
+</style>
