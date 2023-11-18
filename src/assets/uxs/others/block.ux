@@ -1,0 +1,52 @@
+<template>
+    <div  class="blockwrapper" style="background: linear-gradient(to right, rgb(54, 187, 224) , rgba(0, 0,0, 0));    border-radius: 10px;">
+        <image id="blockimg" src="../../images/block.png"></image>
+        <text id="blocktext">{{blockvalue}}</text>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+      return {
+          blockvalue:this.propBlockvalue,
+
+      }
+    },
+    props: {
+      propBlockvalue:{
+          default:0,
+      }
+    },
+    onInit() {
+        this.$watch('propBlockvalue','handlerpropBlockvalueChanged');
+
+    },
+    handlerpropBlockvalueChanged(nVal,oVal){
+        this.blockvalue=nVal;
+        if(this.blockvalu<=0){
+            this.blockvalue=0
+        }
+
+    },
+    
+}
+</script>
+
+<style>
+.blockwrapper{
+    display: flex;
+    flex-direction: row;
+    background: linear-gradient(to right, rgb(54, 187, 224) 0px, rgba(0, 0,0, 0));
+    height: 34px;
+
+    width: 200px;
+}   
+#blockimg{
+    object-fit: contain;
+    height: 34px;
+} 
+#blocktext{
+    height: 34px;
+}
+</style>

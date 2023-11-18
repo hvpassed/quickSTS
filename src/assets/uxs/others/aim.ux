@@ -1,8 +1,8 @@
 <template>
     <div class="aimbar_wrapper">
-        <image src="../../images/intent/attack.png" class="attackimg intentimg"></image>
-        <image src="../../images/intent/defend.png" class="defendimg intentimg"></image>
-        
+        <image src="../../images/intent/attack.png" show={{intent.attack}} class="attackimg intentimg"></image>
+        <image src="../../images/intent/defend.png" show={{intent.defend}} class="defendimg intentimg"></image>
+        <image src="../../images/intent/magic.png" show={{intent.skill}} class="magicimg intentimg"></image>
         <text  class="intent_text">123</text>
     </div>
 </template>
@@ -11,9 +11,24 @@
 export default {
     data(){
         return {
-
+            intent:this.propIntent
         }
     },
+    props: {
+      propIntent:{
+          default:{
+              attack:true,
+              defend:false,
+              skill:false,
+          }
+      }
+    },
+    onInit() {
+      this.$watch("propIntent","handlepropIntentChanged");
+    },
+    handlepropIntentChanged(nVal,oVal){
+        this.intent=nVal;
+    }
 }
 </script>
 

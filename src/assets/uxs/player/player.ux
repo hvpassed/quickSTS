@@ -1,0 +1,82 @@
+<import name="hpbar" src="../others/HpBar.ux"></import>
+<import name="blockbar" src="../others/block.ux"></import>
+ 
+<template>
+    <div class="playerwrapper" style="width:200px;height:225px;">
+    <blockbar prop-blockvalue={{Player.NowBlock}} class="playerblockbar"></blockbar>
+      <hpbar
+        style="width:200px;"
+        class="playerhpbar"
+        width="200"
+        prop-max-hp="{{Player.MaxHp}}"
+        prop-now-hp="{{Player.NowHp}}"
+      >
+      </hpbar>
+      <image
+        style="width:200px;"
+        src="../../images/Player/Player.gif"
+        class="bodyimg"
+      ></image>
+      <image  class="shadowimg" src="../../images/shadow.png" style="width: 200px"></image>
+    </div>
+</template>
+
+<script>
+export default {
+    data(){
+        return {
+            Player:this.propPlayer
+        }
+    },
+    props:{
+        propPlayer:{
+            default:{
+                MaxHp:100,
+                NowHp:100,
+                NowBlock:0,
+            }
+        }
+    },
+    onInit() {
+        this.$watch('propPlayer','handlerpropPlayerChange')
+    },
+    handlerpropPlayerChange(nVal,oVal){
+        this.Player=nVal;
+        if(this.Player.NowHp<=0){
+            this.Player.NowHp=0;
+            this.$emit('PlayDying', null)
+        }
+        if(this.Player.NowBlock<=0){
+            this.Player.NowBlock=0;
+        }
+    },
+    
+}
+</script>
+
+<style>
+.playerwrapper {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+
+}
+.playerblockbar{
+    position: absolute;
+    top: 0px;
+}
+.playerhpbar{
+    position: absolute;
+    top: 34px
+}
+.bodyimg{
+    position: absolute;
+    object-fit: contain;
+    top: 68px;
+}
+.shadowimg{
+    position: absolute;
+    object-fit: contain;
+    top:205.5px;
+}
+</style>

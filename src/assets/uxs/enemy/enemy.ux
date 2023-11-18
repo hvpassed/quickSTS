@@ -1,14 +1,16 @@
 <import name="hpbar" src="../others/HpBar.ux"></import>
- <import name="aimbar" src="../others/aim.ux"></import>
-  
+<import name="aimbar" src="../others/aim.ux"></import>
+<import name="blockbar" src="../others/block.ux"></import>
+ 
 <template>
   <div
     class="enemy_wrapper"
     style="width:{{width}}px;"
     onclick="handleClicked"
-   
+     show="{{alive}}"
   >
-    <div style="height: 74px;  display: flex;flex-direction: column;">
+    <div style="height: 108px;  display: flex;flex-direction: column;">
+      <blockbar prop-blockvalue={{nowblock}}></blockbar>
       <hpbar
         width="200"
         prop-max-hp="{{maxHp}}"
@@ -22,7 +24,7 @@
       class="enemyimg"
       src="../../images/enemy/skeleton/GIFS/Skeleton Idle.gif"
       style="height:{{height}}px;"
-     show="{{alive}}"></image>
+    ></image>
      <image src="../../images/shadow.png"></image>
   </div>
 </template>
@@ -34,6 +36,7 @@ export default {
         return {
             maxHp: this.propEnemy.MaxHp,
             nowHp: this.propEnemy.NowHp,
+            nowblock:this.propEnemy.NowBlock,
             bar_perct: 1,
             selected: null,
             alive: true,
@@ -48,6 +51,7 @@ export default {
                 id:0,
                 MaxHp:100,
                 NowHp:100,
+                NowBlock:0,
             }
         },
         propSelectEnemy:null,
@@ -59,7 +63,7 @@ export default {
         }
     },
     onInit() {
-        
+        this.$watch('propEnemy.NowBlock', 'handlerNowBlockChanged');
         this.$watch('propEnemy.NowHp', 'handlerpropNowHpChanged');
         this.$watch('propSelectEnemy','handlerpropSelectEnemyChanged')
     },
@@ -80,6 +84,12 @@ export default {
             this.alive = false;
         }
 
+    },
+    handlerNowBlockChanged(nVal,oVal){
+      this.nowblock=nVal;
+      if(this.nowblock<=0){
+        this.nowblock=0
+      }
     },
     onReady() {
 

@@ -3,12 +3,17 @@
 <import name="btn" src="../../assets/uxs/button/HexagonalButton.ux"></import>
 <import name="enemy" src="../../assets/uxs/enemy/enemy.ux"></import>
 <import name="hpbar" src="../../assets/uxs/others/HpBar.ux"></import>
+<import name="card" src="../../assets/uxs/card/card.ux"></import>
+<import name="player" src="../../assets/uxs/player/player.ux"></import>
 
+   
  
  
 <template>
   <div class="wrapper">
-
+    <player prop-player={{Player}} class="playerblock"></player>
+    <image src="../../assets/images/button/base1.png" id="drawPile" onclick="drawPileShow"></image>
+    <image src="../../assets/images/button/base2.png" id="dicordPile" onclick="dicordPileShow"></image>
     <!--text>123</text-->
     <div class="EnergyBadge">
       <text class="energy">{{ NowEnergy }}/{{ MaxEnergy }}</text>
@@ -23,19 +28,7 @@
         prop-select-enemy="{{SelectEnemy}}"
       ></enemy>
     </div>
-    <div class="PlayBar">
-      <hpbar
-        width="200"
-        prop-max-hp="{{Player.MaxHp}}"
-        prop-now-hp="{{Player.NowHp}}"
-      >
-      </hpbar>
-      <image
-        src="../../assets/images/Player/Player.gif"
-        class="Player_image"
-      ></image>
-      <image src="../../assets/images/shadow.png" style="width:200px"></image>
-    </div>
+
     <cards
       class="cardsHand"
       card-paras="{{cards}}"
@@ -56,6 +49,19 @@
       onclick="test"
     ></btn>
     <!-- <image class="btn" src="../../assets/images/button/buttonL.png"></image> -->
+    <div id="drawcoverLayer" if="{{drawPileShowing}}" onclick="closeDrawPileShow">
+      <card></card>
+      <card></card>
+      <card></card>
+      <card></card>
+
+    </div>
+    <div id="dicordcoverLayer" if="{{dicordPileShowing}}" onclick="closeDicordPileShow">
+      <card></card>
+      <card></card>
+      <card></card>
+
+    </div>
   </div>
 </template>
 <script>
@@ -63,26 +69,33 @@ import global from "../../helper/global.js";
 export default {
   data() {
     return {
+      drawPileShowing:false,
+      dicordPileShowing:false,
+      testvar:false,
       SelectEnemy: null,
       Player: {
         MaxHp: 100,
         NowHp: 100,
+        NowBlock:40
       },
       enemiesProps: [
         {
           id: 0,
           MaxHp: 20,
           NowHp: 20,
+          NowBlock:10
         },
         {
           id: 1,
           MaxHp: 10,
           NowHp: 10,
+          NowBlock:20
         },
         {
           id: 2,
           MaxHp: 30,
           NowHp: 30,
+          NowBlock:30
         },
       ],
       NowHp: 90,
@@ -172,9 +185,22 @@ export default {
     this.SelectEnemy = e.detail.id;
   },
   test() {
-    this.NowHp -= 10;
+    //this.NowHp -= 10;
+    // this.testvar=true;
 
-
+    this.enemiesProps[0].NowHp-=10
+  },
+  drawPileShow(){
+    this.drawPileShowing=true;
+  },
+  dicordPileShow(){
+    this.dicordPileShowing=true;
+  },
+  closeDrawPileShow(){
+    this.drawPileShowing=false;
+  },
+  closeDicordPileShow(){
+    this.dicordPileShowing=false;
   }
 }
 </script>
@@ -183,6 +209,11 @@ export default {
   position: relative;
   background-image: url('../../assets/images/battlescence/BattleScence1.jpg');
 }
+.playerblock{
+  position: absolute;
+  top:900px;
+  left: 30px;
+}
 .Enemies {
   width: 750px;
   display: flex;
@@ -190,12 +221,7 @@ export default {
   flex-direction: row;
   justify-content: space-around;
 }
-.PlayBar {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  top: 900px;
-}
+
 .cardsHand {
   position: absolute;
   bottom: 0px;
@@ -211,13 +237,7 @@ export default {
   right: 0px;
   bottom: 300px;
 }
-.Player_image {
-  object-fit: contain;
-  height: 200px;
-  position: relative;
-  left: -25px;
-  top: -30px;
-}
+
 .EnergyBadge {
   position: fixed;
   border: 3px solid rgba(0, 0, 0, 0.8);
@@ -233,5 +253,39 @@ export default {
   text-align: center;
   font-size: 40px;
   transform: rotate(-45deg);
+}
+#drawPile{
+  position: absolute;
+  top: 100px;
+  left:0px;
+}
+#dicordPile{
+  position: absolute;
+  top: 100px;
+  right: 0px;
+}
+#drawcoverLayer{
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color:rgba(0, 0, 0,0.7);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: space-around;
+}
+#dicordcoverLayer{
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color:rgba(0, 0, 0,0.7);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: space-around;
 }
 </style>
