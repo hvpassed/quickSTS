@@ -1,44 +1,83 @@
 <import name="hpbar" src="../others/HpBar.ux"></import>
- 
+ <import name="aimbar" src="../others/aim.ux"></import>
+  
 <template>
-    <div  class="enemy_wrapper" style="height:{{height}}px;width:{{width}}px;">
-        <div style="height:34px;">
-            <hpbar  width=200 prop-max-hp={{maxHp}} prop-now-hp={{nowHp}}></hpbar>
-        </div>
-        <image src="../../images/enemy/skeleton/GIFS/Skeleton Idle.gif" style="height:{{height}}px;width:{{width}}px;" ></image>
+  <div
+    class="enemy_wrapper"
+    style="width:{{width}}px;"
+    onclick="handleClicked"
+   
+  >
+    <div style="height: 74px;  display: flex;flex-direction: column;">
+      <hpbar
+        width="200"
+        prop-max-hp="{{maxHp}}"
+        prop-now-hp="{{nowHp}}"
+        prop-clicked="{{selected}}"
+       show="{{alive}}"></hpbar>
+       <aimbar></aimbar>
     </div>
+    
+    <image
+      class="enemyimg"
+      src="../../images/enemy/skeleton/GIFS/Skeleton Idle.gif"
+      style="height:{{height}}px;"
+     show="{{alive}}"></image>
+     <image src="../../images/shadow.png"></image>
+  </div>
 </template>
 <script>
 // import enemy from "../../../helper/enemy/enemy.js";
+import global from "../../../helper/global.js";
 export default {
-    data(){
+    data() {
         return {
-            maxHp:this.propMaxHp,
-            nowHp:this.propNowHp,
-            bar_perct:1
+            maxHp: this.propEnemy.MaxHp,
+            nowHp: this.propEnemy.NowHp,
+            bar_perct: 1,
+            selected: null,
+            alive: true,
+            id:this.propEnemy.id,
+            selectedId:this.propSelectEnemy,
         }
     },
-    props:{
-        propMaxHp:{
-            default:100
+    props: {
+        propEnemy:{
+            type:Object,
+            default:{
+                id:0,
+                MaxHp:100,
+                NowHp:100,
+            }
         },
-        propNowHp:{
-            default:100
+        propSelectEnemy:null,
+        width: {
+            default: 100
         },
-        width:{
-            default:100
-        },
-        height:{
-            default:100
+        height: {
+            default: 100
         }
     },
     onInit() {
-      this.$watch('propNowHp','handlerpropNowHpChanged');
+        
+        this.$watch('propEnemy.NowHp', 'handlerpropNowHpChanged');
+        this.$watch('propSelectEnemy','handlerpropSelectEnemyChanged')
     },
-    handlerpropNowHpChanged(nVal,oVal){
-        this.nowHp=nVal;
-        if(this.nowHp<=0){
-            this.nowHp=0
+    handlerpropSelectEnemyChanged(nVal,oVal){
+      
+        this.selectedId=nVal;
+        if(this.selectedId==this.id){
+          this.selected=true;
+        }else{
+          this.selected=false;
+        }
+    },
+    handlerpropNowHpChanged(nVal, oVal) {
+
+        this.nowHp = nVal;
+        if (this.nowHp <= 0) {
+            this.nowHp = 0
+            this.alive = false;
         }
 
     },
@@ -46,21 +85,22 @@ export default {
 
 
     },
+    handleClicked() {
+        this.$emit('enemySelect', {id:this.id});
+    }
 
 }
 </script>
     
 <style>
-.enemy_wrapper{
-    display: flex;  
-    flex-direction: column;
-    position: relative;
+.enemy_wrapper {
+  display: flex;
+  flex-direction: column;
+  /* position: relative; */
 }
 
-image{
-    object-fit: contain;
-    position: fixed;
-    top: 34px;
-}
+image {
+  object-fit: contain;
 
+}
 </style>

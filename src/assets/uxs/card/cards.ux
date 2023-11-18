@@ -1,7 +1,7 @@
 <import name="card" src="./card.ux"></import>
  
 <template>
-  <div class="wrapper">
+  <div class="wrapper" style="width: 750px;  justify-content: space-around;">
     <card
       class="cardEle"
       for="value in cards"
@@ -9,6 +9,7 @@
       oncard-clicking="handleCardClicking"
       prop-selected="{{selecting}}"
       @click="handleClick"
+      
     ></card>
   </div>
 </template>
@@ -72,11 +73,11 @@ export default {
 </script>
 <style>
 .wrapper {
-  position: absolute;
+
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+
+
 }
-.cardEle {
-  position: relative;
-}
+
 </style>

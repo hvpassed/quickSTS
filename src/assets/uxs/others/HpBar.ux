@@ -1,6 +1,6 @@
 <template>
     <div class="hp_bar_wrapper" style="width:{{width}}px">
-        <div class="hp_bar_color" style="width:{{width*color_width}}px;" onclick="clicked"></div>
+        <div class="hp_bar_color" style="width:{{width*color_width}}px;background-color: #{{color}};" onclick="clicked"></div>
         <text  style="width:{{width}}px">{{np}}/{{mp}}</text>
     </div>
 </template>
@@ -11,7 +11,9 @@ export default {
         return {
             color_width:1.0,
             np:this.propNowHp,
-            mp:this.propMaxHp
+            mp:this.propMaxHp,
+            color:'ffc107',
+            clicked:this.propClicked,
         }
     },
     props:{
@@ -24,10 +26,13 @@ export default {
         propNowHp:{
             default:100
         },
+        propClicked:{
+            default:null,
+        }
     },
     onInit() {
       this.$watch("propNowHp","handeleNowHpChange");
-    //   this.$watch("np","handelenpChange");
+        this.$watch("propClicked","handlepropClickedChange");
     },
     handeleNowHpChange(nVal,oVal){
         this.propNowHp=nVal;
@@ -42,6 +47,15 @@ export default {
         }
         
         
+    },
+    handlepropClickedChange(nVal,oVal){
+        this.clicked=nVal;
+        if(this.clicked){
+            this.color="cc3333"
+        }
+        else{
+            this.color="ffc107"
+        }
     },
     // handelenpChange(nVal,oVal){
     //     this.propNowHp=nVal;
@@ -75,11 +89,12 @@ div{
     position: absolute;
     height: 34px;
 
-    background-color: #ffc107;
+    
     border-radius: 10px;
 }   
 text{
     text-align: center;
     height:34px;
+    font-size: 23px;
 }
 </style>

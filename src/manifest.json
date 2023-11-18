@@ -33,10 +33,10 @@
     "logLevel": "debug"
   },
   "router": {
-    "entry": "pages/db",
+    "entry": "pages/Battle",
     "pages": {
-      "pages/db": {
-        "component": "db"
+      "pages/Battle": {
+        "component": "Battle"
       },
       "pages/mainmenu": {
         "component": "menu"
