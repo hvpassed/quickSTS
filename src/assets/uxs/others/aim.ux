@@ -1,0 +1,38 @@
+<template>
+    <div class="aimbar_wrapper">
+        <image src="../../images/intent/attack.png" class="attackimg intentimg"></image>
+        <image src="../../images/intent/defend.png" class="defendimg intentimg"></image>
+        
+        <text  class="intent_text">123</text>
+    </div>
+</template>
+
+<script>
+export default {
+    data(){
+        return {
+
+        }
+    },
+}
+</script>
+
+<style>
+.aimbar_wrapper{
+    display: flex;
+    position: relative;
+    background: linear-gradient(to right, rgb(159, 135, 135) 0px, rgba(0, 0,0, 0));
+    height: 40px;
+    width: 200px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.intentimg{
+    position: absolute;
+}
+.intent_text{
+    position: relative;
+    left: 40px;
+}
+</style>
