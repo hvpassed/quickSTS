@@ -1,0 +1,60 @@
+<template>
+    <div>
+        <text onclick="click">{{eventName}}</text>
+        <input type="button" onclick="click"/>
+    </div>    
+</template>
+
+<script>
+import asr from '@service.asr'
+import vibrator from '@system.vibrator'
+export default {
+    data(){
+        return {
+            eventName: '',
+            nameBackUp: '',
+        }
+    },
+    props: {
+      
+    },
+    onInit() {
+        //this.initAsr()
+    },
+    click(e){
+        this.startAsr();
+    },
+    initAsr() {
+        let that = this
+        asr.oncompleteresult = ({ result }) => {
+            that.eventName = that.nameBackUp + `${result}`
+            console.log("initAsr")
+            console.log(result)
+            console.log("initAsr")
+        }
+    },
+    startAsr() {
+        let that = this
+        this.nameBackUp = this.eventName
+        asr.start({
+        success: function (e) {
+            //多调用几遍使震动明显一些
+            vibrator.vibrate({ mode: 'short' })
+            vibrator.vibrate({ mode: 'short' })
+            vibrator.vibrate({ mode: 'short' })
+            console.log("start")
+            console.log(e)
+            console.log("start")
+
+        },
+        fail: function (data, code) {
+            that.eventName = `start fail, code=${code}, data=${data}`
+        }
+        })
+    },
+}
+</script>
+
+<style>
+    
+</style>

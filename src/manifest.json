@@ -5,6 +5,9 @@
   "versionCode": 1,
   "minPlatformVersion": 1070,
   "icon": "/assets/images/logo.png",
+  "deviceTypeList": [
+    "phone"
+  ],
   "features": [
     {
       "name": "system.prompt"
@@ -21,6 +24,12 @@
     {
       "name": "system.contact"
       
+    },
+    {
+      "name": "service.asr"
+    },
+    {
+      "name": "system.vibrator"
     }
   ],
   "permissions": [
@@ -33,7 +42,7 @@
     "logLevel": "debug"
   },
   "router": {
-    "entry": "pages/Battle",
+    "entry": "pages/db",
     "pages": {
       "pages/Battle": {
         "component": "Battle"
@@ -46,6 +55,9 @@
       },
       "pages/GameMap":{
         "component": "GameMap"
+      },
+      "pages/db":{
+        "component": "db"
       }
     }
 
