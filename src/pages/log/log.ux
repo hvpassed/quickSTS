@@ -1,27 +1,131 @@
+<import name="q-notice" src="qaui/src/components/notice/index"></import>
 <template>
     <div class="wrapper">
-        <image src="../../assets/images/log/background.png" class="bg"></image>
+
+        <div style="display:flex;flex-direction:column;" class="bg">
+        <q-notice if={{lognotice.show}} notice-text={{lognotice.text}} type={{lognotice.type}} right-icon-type="link" onlink-tap="logNoticeClose"></q-notice>
+        <q-notice if={{signnotice.show}} notice-text={{signnotice.text}} type={{signnotice.type}} right-icon-type="link" onlink-tap="signNoticeClose"></q-notice>
+        </div>
         <div class="form">
             <image src="../../assets/images/log/logicon.png" id="logicon"></image>
             <image src="../../assets/images/log/logiconpw.png" id="logiconpw"></image>
-            <input class="textinput" id="un" type="text" />
-            <input class="textinput" id="pw" type="password" />
-            <input class="btn" id="log" type="button" value="登录" onclick="logClick"/>
-            <input class="btn" id="sign" type="button" value="注册"/>
+            <input class="textinput" id="un" type="text" value="{{username}}" @change="usernameChanged"></input>
+            <input class="textinput" id="pw" type="password" model:value="{{password}}" @change="passwordChanged"></input>
+            <input class="btn login" id="log" type="button" value="登录" onclick="logClick"/>
+            <input class="btn signup" id="sign" type="button" value="注册" onclick="signupClick"/>
+
         </div>
     </div>
 </template>
 <script>
 import router from '@system.router'
 //import app from "../../helper/global"
-
+import fetch from '@system.fetch' 
+import notification from '@system.notification'
 export default{
+    data() {
+        return {
+            username:"",
+            password:"",
+            lognotice:{
+                show:false,
+                text:"adasddsaf",
+                type:"normal",
+            },
+            signnotice:{
+                show:false,
+                text:"asdfaf",
+                type:"normal"
+            },
+        }
+    },
+    onInit() {
+       //console.log(this.$app.$def)
+    },
     logClick(){
+        let thatrouter = router;
+        let that = this
+        var paras={
+            url:"http://10.29.233.97:20002/auth/logging",
+            method:"POST",
+            header:{
+                "Content-Type":"application/json"
+            },
+            data:{
+                "username":this.username,
+                "password":this.password
+            },
+        }
+        fetch.fetch(paras).then((response)=>{
+            try{
+                var data = JSON.parse(response.data.data)
+                
+                if(data.code==1){
 
-        router.push({
-            uri:"/pages/GameMap"
+                    that.lognotice.text="用户名或密码不存在"
+                    that.lognotice.show=true;
+                }else{
+                    this.$app.$def.UserData.UserId=data.data.id;
+                    this.$app.$def.UserData.UserName=data.data.username;
+                    router.push({
+                        uri:"/pages/GameMap"
+                    })
+                }
+            }catch(err){
+                console.error(err)
+            }
+        }).catch(err=>{
+            console.error(err);
+        })
+        // router.push({
+        //     uri:"/pages/GameMap"
+        // })
+    },
+    logNoticeClose(){
+        this.lognotice.show=false;
+    },
+    signNoticeClose(){
+        this.signnotice.show=false;
+    },
+    signupClick(){
+        let that = this
+        var paras={
+            url:"http://10.29.233.97:20002/auth/sign",
+            method:"POST",
+            header:{
+                "Content-Type":"application/json"
+            },
+            data:{
+                "username":this.username,
+                "password":this.password
+            },
+        }
+        fetch.fetch(paras).then((response)=>{
+            try{
+                
+                var data = JSON.parse(response.data.data)
+                console.log(data)
+                if(data.code==3){
+                    that.signnotice.text="用户名已存在"
+                }else{
+
+                    that.signnotice.text="注册成功,请登录"
+                }
+                that.signnotice.show=true;
+            }catch(err){
+                console.error(err)
+            }
+        }).catch(err=>{
+            console.error(err);
         })
     },
+    usernameChanged(e){
+        
+        this.username=e.value
+    },
+    passwordChanged(e){
+        this.password=e.value
+    }
 }
 </script>
 <style>
@@ -37,7 +141,8 @@ export default{
     width: 100%;
     height: 100%;
     position:absolute;
-    z-index: 0;
+    background-image: url("../../assets/images/log/background.png")
+
 }
 .form{
     width: 450px;
@@ -46,6 +151,9 @@ export default{
     top: 614px;
     left: 150px;
     
+}
+.login:active{
+    background-color:rgb(215, 246, 248);
 }
 .btn{
     position:absolute;
@@ -61,6 +169,9 @@ export default{
 }
 #log{
     top:180px;
+}
+#sign:active{
+    background-color: #00ffff;
 }
 #sign{
     top: 270px;
@@ -80,6 +191,7 @@ export default{
 #pw{
     top: 90px;
 }
+
 #logicon{
     width: 80px;
     height: 80px;

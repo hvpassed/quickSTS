@@ -1,5 +1,5 @@
 import { list } from "@system.contact";
-
+var seedrandom = require('seedrandom');
 export default{
     data: {
       //规则: "level":{"level+'-id'":[type,前驱],...}
@@ -8,8 +8,10 @@ export default{
       //"level":{key:[top,left,radius]}
       Pos:new Map(),
       current:[-1,0],
+      rng:null,
     },
-    init(totalLevel,avgnode,width,height,radius){
+    init(totalLevel,avgnode,width,height,radius,seed){
+        this.rng = seedrandom(seed);
         this.generateNodes(totalLevel,avgnode);
         this.generatePath();
         this.generatePos(width,height,radius);
@@ -22,6 +24,16 @@ export default{
         }else{
             return null;
         }
+    },
+    getByIndex(level,node){
+        //
+        if(level < this.data.levels && node < this.data.graph[level].length)
+        {
+            return [[level,node],this.data.graph[level][level+'-'+node],this.data.Pos[level][level+"-"+node]];
+        }else{  
+            return null;
+        }
+        
     },
     child(level,node){
         var key = level+"-"+node;
@@ -59,8 +71,8 @@ export default{
         // 使用 Box-Muller 转换生成正态分布的随机数
         let u1, u2;
         do {
-            u1 = Math.random();
-            u2 = Math.random();
+            u1 = this.rng();
+            u2 = this.rng();
         } while (u1 <= Number.EPSILON); // 避免u1为0，因为log(0)是undefined
         
         const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
@@ -79,7 +91,7 @@ export default{
         res.fill(navg);
         var remainder = parseInt(x%n);
         for(var i =0;i<remainder;i++){
-            var index = parseInt(Math.random()*n);
+            var index = parseInt(this.rng()*n);
             res[index]+=1;
         }
         return res;
@@ -106,7 +118,7 @@ export default{
                 var curx = radius+deltaX/2;
                 var mp = new Map();
                 for(var j=0;j<this.data.graph[i].length;j++){
-                    var noisex = (Math.random()-0.5)*deltaX;
+                    var noisex = (this.rng()-0.5)*deltaX;
                     var pl = curx+noisex;
                     if(j!=0 && (Math.abs(pl-mp[i+'-'+(j-1)][1])<=2*radius)){
                         pl+=2*radius;
@@ -138,7 +150,7 @@ export default{
         this.data.levels = totalLevel;
         for(var i = 0;i<totalLevel;i++){
             var mp =new Map();
-            var rd = 4,perc = Math.random();
+            var rd = 4,perc = this.rng();
             if(perc<=0.5){
                 rd=4;
             }        

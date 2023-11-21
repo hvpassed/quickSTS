@@ -9,15 +9,26 @@
 <script>
 import graph from "../../helper/graph"
 export default{
+    data(){
+        return {
+            curPos:[0,0],
+        }
+    },
+    onInit() {
+      
+    },
+    onReady() {
 
+    },
     onShow() {
         let that = this;
-        //console.log(app)
+
         this.$element('bgcanvas').getBoundingClientRect({
             success:(data)=>{
-                graph.init(5,5,data.width,data.height,30);
-                this.$app.$def.globalData.graph = graph
-                console.log(this.$app.$def.globalData)
+
+                graph.init(5,5,data.width,data.height,30,that.$app.$def.UserData.UserId);
+                that.$app.$def.globalData.graph = graph
+                console.log(graph)
                 that.drawMap();
             }
         })
@@ -68,6 +79,7 @@ export default{
         ctx.closePath();
     },
     handleClick(e){
+        var ret = null;
         var flag = true;
         console.log(e);
         var clickX=e.offsetX,clickY=e.offsetY;
@@ -82,13 +94,17 @@ export default{
             //console.log((cx-clickX)**2+(cy-clickY)**2);
             if(((cx-clickX)**2+(cy-clickY)**2)<=radius**2){
                 console.log(obj);
+                ret = obj;
                 flag=false;
                 break;
             }
         }
         if(flag){
             console.log("none")
+            
         }
+        return ret;
+        
     },
 }
 </script>

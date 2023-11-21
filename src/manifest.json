@@ -21,6 +21,12 @@
     {
       "name": "system.contact"
       
+    },
+    { 
+      "name": "system.request" 
+    },
+    { 
+      "name": "system.notification" 
     }
   ],
   "permissions": [
@@ -33,7 +39,7 @@
     "logLevel": "debug"
   },
   "router": {
-    "entry": "pages/Battle",
+    "entry": "pages/mainmenu",
     "pages": {
       "pages/Battle": {
         "component": "Battle"

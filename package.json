@@ -15,7 +15,9 @@
     "prettier-watcher": "onchange '**/*.md' \"src/**/**/*.{ux,js,json,less,scss,css,pcss,md,vue}\" -- prettier --write {{changed}}"
   },
   "dependencies": {
-    "apex-ui": "^1.9.2"
+    "apex-ui": "^1.9.2",
+    "qaui": "^1.0.18",
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "@babel/runtime": "^7.12.5",

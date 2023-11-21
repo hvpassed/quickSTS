@@ -5,16 +5,22 @@
 
 const $utils = require('./helper/utils').default
 const $apis = require('./helper/apis').default
-
+const $notification = require('@system.notification').default
+const $router = require('@system.router').default
 /* @desc: 注入方法至全局 global,以便页面调用 */
 const hook2global = global.__proto__ || global
 hook2global.$utils = $utils
 hook2global.$apis = $apis
-
+hook2global.$notification = $notification
+hook2global.$router =$router
 export default {
   onCreate() {},
   globalData:{
     graph:null,
+  },
+  UserData:{
+    UserId:-1,
+    UserName:""
   }
 }
 </script>

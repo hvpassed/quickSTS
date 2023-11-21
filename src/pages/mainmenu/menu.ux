@@ -1,8 +1,10 @@
+
 <template>
     <div class="wrapper">
-
+        
         <input type="button" class="btn" value="t" onclick="logClick">
         <image class="bg" src="/assets/images/menu/background.png" ></image>
+
     </div>
     
 </template>
