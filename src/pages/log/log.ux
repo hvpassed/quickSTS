@@ -29,12 +29,12 @@ export default{
             password:"",
             lognotice:{
                 show:false,
-                text:"adasddsaf",
+                text:"err",
                 type:"normal",
             },
             signnotice:{
                 show:false,
-                text:"asdfaf",
+                text:"err",
                 type:"normal"
             },
         }
@@ -46,7 +46,7 @@ export default{
         let thatrouter = router;
         let that = this
         var paras={
-            url:"http://10.29.233.97:20002/auth/logging",
+            url:this.$app.$def.url+":20002/auth/logging",
             method:"POST",
             header:{
                 "Content-Type":"application/json"
@@ -61,15 +61,97 @@ export default{
                 var data = JSON.parse(response.data.data)
                 
                 if(data.code==1){
-
                     that.lognotice.text="用户名或密码不存在"
                     that.lognotice.show=true;
-                }else{
-                    this.$app.$def.UserData.UserId=data.data.id;
+                }else if(data.code==0){
+                    // console.log(1)
+                    // console.log(data)
+                    // console.log(2)
+                    this.$app.$def.UserData.UserId=data.data.userid;
+                    
                     this.$app.$def.UserData.UserName=data.data.username;
-                    router.push({
-                        uri:"/pages/GameMap"
-                    })
+                    if(data.data.hasmap==0){//没有地图
+                        fetch.fetch({
+                            url:this.$app.$def.url+":20002/map/initMap",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "userid":data.data.userid,
+                            }
+                        }).then((response)=>{
+
+                            var res = JSON.parse(response.data.data);
+                            
+                            if(res.code==0){//创建成功
+                                //console.log(res)
+                                this.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
+                                this.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
+                                this.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
+                                if(res.data.player.playing==0){
+                                    this.$app.$def.PlayerData.playing=false;
+                                }else{
+                                    this.$app.$def.PlayerData.playing=true;
+                                }
+                                this.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
+                                this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
+                                this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
+                                this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
+                                router.push({
+                                    uri:"/pages/GameMap"
+                                })
+                            }else{
+                                console.error(res.msg)
+                            }
+                        }).catch(err=>{ 
+                            console.error(err);
+                        })
+                        //需要初始化地图
+                        //获取地图id，种子
+                    }else{//读取地图
+                        //console.log(data.data.userid)
+                        fetch.fetch({
+                            url:this.$app.$def.url+":20002/map/read",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "userid":data.data.userid,
+                            }
+                        }).then((response)=>{
+                            
+                            var res = JSON.parse(response.data.data);
+                            //console.log(res)
+                            if(res.code==2){//读取成功
+  
+                                this.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
+                                this.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
+                                this.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
+                                if(res.data.player.playing==0){
+                                    this.$app.$def.PlayerData.playing=false;
+                                }else{
+                                    this.$app.$def.PlayerData.playing=true;
+                                }
+                                this.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
+                                this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
+                                this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
+                                this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
+                                router.push({
+                                    uri:"/pages/GameMap"
+                                })
+                            }else{
+                                console.error(res.msg)
+                            }
+                        }).catch(err=>{ 
+                            console.error(err);
+                        })
+                    }
+
+                }
+                else{
+                    console.error(response)
                 }
             }catch(err){
                 console.error(err)
@@ -90,7 +172,7 @@ export default{
     signupClick(){
         let that = this
         var paras={
-            url:"http://10.29.233.97:20002/auth/sign",
+            url:this.$app.$def.url+":20002/auth/sign",
             method:"POST",
             header:{
                 "Content-Type":"application/json"
@@ -104,12 +186,14 @@ export default{
             try{
                 
                 var data = JSON.parse(response.data.data)
-                console.log(data)
+                
                 if(data.code==3){
                     that.signnotice.text="用户名已存在"
-                }else{
+                }else if(data.code==2){
 
                     that.signnotice.text="注册成功,请登录"
+                }else{
+                    console.error(response)
                 }
                 that.signnotice.show=true;
             }catch(err){

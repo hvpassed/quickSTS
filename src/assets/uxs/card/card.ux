@@ -2,13 +2,13 @@
 <div  class="img_wrapper" style="width:{{cardPara.width}}px;height:{{height}}px;" onclick="handleClicking">
     <image src="../../../assets/images/cards/Card Template.png" style="width:{{cardPara.width}}px;" onclick="handleClicking"></image>
     <div class="cardText cardName" style="top:{{top1}}px;left:{{left1}}px;" onclick="handleClicking">
-        <text class="cardName" onclick="handleClicking" style="color:#{{color}};">{{cardPara.cardName}}</text>
+        <text class="cardName text" onclick="handleClicking" style="color:#{{color}};">{{cardPara.cardName}}</text>
     </div>
     <div class="cardText cardCoast" style="top:{{top2}}px;left:{{left1}}px;" onclick="handleClicking">
-        <text class="costText" style="color:#{{color}};" onclick="handleClicking">{{cardPara.cardCost}}</text>
+        <text class="costText text" style="color:#{{color}};" onclick="handleClicking">{{cardPara.cardCost}}</text>
     </div>
     <div class="cardText cardDc" style="top:{{top3}}px;left:{{left1}}px;" onclick="handleClicking">
-        <text  style="color:#{{color}};" onclick="handleClicking">{{cardPara.cardDc}} </text>
+        <text  class="text" style="color:#{{color}};" onclick="handleClicking">{{cardPara.cardDc}} </text>
     </div>
 
 </div>
@@ -126,5 +126,7 @@ export default{
 .cardDc{
     height: 30%;
 }
-
+.text{
+    font-size:15px;
+}
 </style>

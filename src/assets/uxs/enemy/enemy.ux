@@ -17,7 +17,7 @@
         prop-now-hp="{{nowHp}}"
         prop-clicked="{{selected}}"
        show="{{alive}}"></hpbar>
-       <aimbar></aimbar>
+       <aimbar prop-intent={{intent}}></aimbar>
     </div>
     
     <image
@@ -34,6 +34,7 @@ import global from "../../../helper/global.js";
 export default {
     data() {
         return {
+            intent:this.propEnemy.intent,
             maxHp: this.propEnemy.MaxHp,
             nowHp: this.propEnemy.NowHp,
             nowblock:this.propEnemy.NowBlock,
@@ -52,6 +53,7 @@ export default {
                 MaxHp:100,
                 NowHp:100,
                 NowBlock:0,
+                intent:null,
             }
         },
         propSelectEnemy:null,

@@ -5,7 +5,8 @@
 <import name="hpbar" src="../../assets/uxs/others/HpBar.ux"></import>
 <import name="card" src="../../assets/uxs/card/card.ux"></import>
 <import name="player" src="../../assets/uxs/player/player.ux"></import>
-
+<import name="cardLayer" src="../../assets/uxs/CardCoverLayer/CardCoverLayer.ux"></import>
+ 
    
  
  
@@ -49,26 +50,21 @@
       onclick="test"
     ></btn>
     <!-- <image class="btn" src="../../assets/images/button/buttonL.png"></image> -->
-    <div id="drawcoverLayer" if="{{drawPileShowing}}" onclick="closeDrawPileShow">
-      <card></card>
-      <card></card>
-      <card></card>
-      <card></card>
+    <cardLayer if="{{drawPileShowing}}" prop-cards="{{drawCards}}"  onclick="closeDrawPileShow">
 
-    </div>
-    <div id="dicordcoverLayer" if="{{dicordPileShowing}}" onclick="closeDicordPileShow">
-      <card></card>
-      <card></card>
-      <card></card>
-
-    </div>
+    </cardLayer>
+    <cardLayer  if="{{dicordPileShowing}}" prop-cards="{{discordCards}}" onclick="closeDicordPileShow">
+    </cardLayer>
   </div>
 </template>
 <script>
 import global from "../../helper/global.js";
+import fetch from '@system.fetch' 
+import router from '@system.router'
 export default {
   data() {
     return {
+      initParams:null,
       drawPileShowing:false,
       dicordPileShowing:false,
       testvar:false,
@@ -78,28 +74,9 @@ export default {
         NowHp: 100,
         NowBlock:40
       },
-      enemiesProps: [
-        {
-          id: 0,
-          MaxHp: 20,
-          NowHp: 20,
-          NowBlock:10
-        },
-        {
-          id: 1,
-          MaxHp: 10,
-          NowHp: 10,
-          NowBlock:20
-        },
-        {
-          id: 2,
-          MaxHp: 30,
-          NowHp: 30,
-          NowBlock:30
-        },
-      ],
-      NowHp: 90,
-      MaxHp: 90,
+      enemiesProps: //[{id,monsterid,MaxHp,NowHp,NowBlock}]
+      [],
+
       MaxEnergy: 3,
       NowEnergy: 3,
       selected: null,
@@ -109,47 +86,112 @@ export default {
         width: 234,
         fontSize: 36
       },
-      cards: [
-        {
-          id: 0,
-          width: 150,
-          cardName: '---',
-          cardCost: 1,
-          cardDc: '---'
-        },
-        {
-          id: 1,
-          width: 150,
-          cardName: '---',
-          cardCost: 2,
-          cardDc: '---'
-        },
-        {
-          id: 2,
-          width: 150,
-          cardName: '---',
-          cardCost: 3,
-          cardDc: '---'
-        },
-        {
-          id: 3,
-          width: 150,
-          cardName: '---',
-          cardCost: 4,
-          cardDc: '---'
-        },
-        {
-          id: 4,
-          width: 150,
-          cardName: '---',
-          cardCost: 5,
-          cardDc: '---'
-        }
-
-      ]
+      cardIdMapAttribute:{},//cardid 对应属性（对象）,cards里边只存储，一些描述id:{"cardid","title","description","cost"}
+      cards:[], //[{id,cardid,width,cardName,cardCost,cardDc}]
+      drawCards:[],
+      discordCards:[],
     };
   },
   onInit() {
+    //console.log(this.initParams)
+    this.initParams = JSON.parse(this.initParams)
+    //[{id,monsterid,MaxHp,NowHp,NowBlock,name,description}]
+    let i = 0;
+    let that = this;
+    this.Player = {
+        MaxHp:  this.initParams["battle_player"].maxhp,
+        NowHp: this.initParams["battle_player"].nowhp,
+        NowBlock:this.initParams["battle_player"].block
+    };
+    let intentObjs = this.initParams["intents"];
+    this.initParams["monsters"].forEach(element => {
+        let e1 = element;
+        
+        intentObjs.forEach(e2=>{
+          //console.log(e1,e2)
+          if(e1.monsterid==e2.monsterid)
+          that.enemiesProps.push({
+            id:i,
+            monsterid:e1.monsterid,
+            MaxHp:e1.maxhp,
+            NowHp:e1.nowhp,
+            NowBlock:e1.block,
+            name:e1.name,
+            description:e1.description,
+            intent:that.intentParse(e2)
+          })
+        })
+      i+=1;
+    });
+    //console.log(that.enemiesProps)
+    fetch.fetch({
+      url:this.$app.$def.url+":20002/battle/getCardsByIdMap",
+      method:"POST",
+      header:{
+        "Content-Type":"application/json"
+      },
+      data:{
+        "cardidsmap":this.initParams["battle_player"]["all_pile"]
+      },
+    }).then(Response=>{
+      
+      //console.log(Response)
+      var data = JSON.parse(Response.data.data)
+      var cardsObjs = data.data;
+      cardsObjs.forEach(el=>{
+        that.cardIdMapAttribute[el.cardid] = el;
+      })
+
+      var handPile = JSON.parse(this.initParams["battle_player"]["hand_pile"])["Array"]
+      var drawPile = JSON.parse(this.initParams["battle_player"]["draw_pile"])["Array"]
+      var discordPile = JSON.parse(this.initParams["battle_player"]["discord_pile"])["Array"]
+      var j =0;
+      handPile.forEach(element=>{
+        var cardobj = that.cardIdMapAttribute[element];
+        that.cards.push({
+            id:j,
+            cardid:cardobj.cardid,
+            width:150,
+            cardName:cardobj.title,
+            cardCost:cardobj.cost,
+            cardDc:cardobj.description
+        })
+        j+=1;
+      })
+
+      drawPile.forEach(element=>{
+        var cardobj = that.cardIdMapAttribute[element];
+        that.drawCards.push({
+            id:j,
+            cardid:cardobj.cardid,
+            width:150,
+            cardName:cardobj.title,
+            cardCost:cardobj.cost,
+            cardDc:cardobj.description
+        })
+        j+=1;
+      })
+      //console.log(that.drawCards)
+      discordPile.forEach(element=>{
+        var cardobj = that.cardIdMapAttribute[element];
+        that.discordCards.push({
+            id:j,
+            cardid:cardobj.cardid,
+            width:150,
+            cardName:cardobj.title,
+            cardCost:cardobj.cost,
+            cardDc:cardobj.description
+        })
+        j+=1;
+      })
+    //console.log(that.discordCards)
+      
+    }).catch(Error=>{
+      console.error(Error)
+    })
+    
+    //this.initParams[""];
+
 
   },
   handlecardSelecting(e) {
@@ -177,7 +219,7 @@ export default {
 
       this.sendCards(this.selected)
       this.sending = true;
-      console.log(this.sending)
+      //console.log(this.sending)
       this.sending = null;
     }
   },
@@ -201,6 +243,33 @@ export default {
   },
   closeDicordPileShow(){
     this.dicordPileShowing=false;
+  },
+  intentParse(aIntent){
+    var ret = {
+      attack:false,
+      defend:false,
+      skill:false,
+      text:0,
+
+    }
+    if(aIntent.aim==="ATTACK")
+    {
+
+      ret.attack=true;
+      if(aIntent.attack_amount==1){
+        ret.text = aIntent.attack;
+
+      }else{
+        ret.text = aIntent.attack_amount+ "×"+  aIntent.attack ;
+      }
+      
+    }else if(aIntent.aim==="DEFEND"){
+      ret.defend=true;
+      ret.text = aIntent.defend;
+    }else{
+
+    }
+    return ret;
   }
 }
 </script>

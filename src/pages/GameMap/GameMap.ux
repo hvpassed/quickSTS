@@ -1,21 +1,25 @@
 <template>
     <div class="wrapper">
         
-        <canvas class="bg" id="bgcanvas"  onclick="handleClick"></canvas>    
+        <canvas class="bg" id="bgcanvas"  onclick="startGame"></canvas>    
         <!--image class="bg img" src="../../assets/images/map/mapMid.png"></image-->    
     </div>
 </template>
 
 <script>
 import graph from "../../helper/graph"
+import fetch from '@system.fetch' 
+import router from '@system.router'
 export default{
     data(){
         return {
-            curPos:[0,0],
+            curPos:[-1,0],
+            monstericon:null,
         }
     },
     onInit() {
-      
+        console.log(this.$app.$def)
+        this.curPos=this.$app.$def.globalData.curPos
     },
     onReady() {
 
@@ -26,25 +30,50 @@ export default{
         this.$element('bgcanvas').getBoundingClientRect({
             success:(data)=>{
 
-                graph.init(5,5,data.width,data.height,30,that.$app.$def.UserData.UserId);
+                graph.init(5,5,data.width,data.height,30,that.$app.$def.globalData.graphSeed);
                 that.$app.$def.globalData.graph = graph
                 console.log(graph)
+                //检查是否在战斗
                 that.drawMap();
             }
         })
         
     },
+    
     drawMap(){
         let canvas = this.$element('bgcanvas');
         let ctx = canvas.getContext('2d');
         var g = this.$app.$def.globalData.graph;
-        this.drawCicle(ctx,g.data.Pos[-1][-1+"-"+0][1],g.data.Pos[-1][-1+"-"+0][0],g.data.Pos[-1][-1+"-"+0][2]);
+        var children = graph.child(this.curPos[0],this.curPos[1])
+        if(this.curPos[0]!=-1){
+            this.drawCicle(ctx,g.data.Pos[-1][-1+"-"+0][1],g.data.Pos[-1][-1+"-"+0][0],g.data.Pos[-1][-1+"-"+0][2]);
+        }
+        else{
+            this.drawCicleRed(ctx,g.data.Pos[-1][-1+"-"+0][1],g.data.Pos[-1][-1+"-"+0][0],g.data.Pos[-1][-1+"-"+0][2]);
+        }
+
         for(var i = 0;i<g.data.levels;i++){
             for(var j = 0;j<g.data.graph[i].length;j++){
                 var ls = g.data.graph[i][i+"-"+j];
                 var poss =g.data.Pos[i][i+"-"+j];
-                this.drawCicle(ctx,poss[1],poss[0],poss[2]);
-                //console.log(pos)
+                if(i==this.curPos[0] &&j==this.curPos[1])
+                {
+                    this.drawCicleRed(ctx,poss[1],poss[0],poss[2]);
+                    
+                }else{
+                    var flag = true;
+                    for(var l = 0;l<children.length;l++){
+                        if(children[l][0]==i && children[l][1]==j){
+                            this.drawCicleBlue(ctx,poss[1],poss[0],poss[2]);
+                            flag=false;
+                            break;
+                        }
+                    }
+                    if(flag){
+                        this.drawCicle(ctx,poss[1],poss[0],poss[2]);
+                    }
+                }
+                
                 for(var k=0,pos=2;k<ls[1];k++,pos++){
                     var preName = ls[pos];
                     var prePos = g.data.Pos[i-1][preName];
@@ -67,6 +96,26 @@ export default{
         ctx.setLineDash([]);
         ctx.closePath();
     },
+    drawCicleBlue(ctx,centerX,centerY,radius){
+        ctx.beginPath();
+
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 2;
+
+        ctx.stroke();
+        ctx.closePath();
+    },
+    drawCicleRed(ctx,centerX,centerY,radius){
+        ctx.beginPath();
+
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+
+        ctx.stroke();
+        ctx.closePath();
+    },
     drawCicle(ctx,centerX,centerY,radius){
 
         ctx.beginPath();
@@ -77,6 +126,42 @@ export default{
 
         ctx.stroke();
         ctx.closePath();
+    },
+    startGame(e){
+        
+        var selectd =  this.handleClick(e)
+        var news = this.curPos[0]+"-"+this.curPos[1]
+        if(selectd){
+            if(selectd[1][2]===news){
+                console.log("start game")
+
+                let enterPos = "["+selectd[0][0]+","+selectd[0][1]+"]"
+                //console.log(enterPos)
+                
+                fetch.fetch({
+                    url:this.$app.$def.url+":20002/battle/initBattle",
+                    method:"POST",
+                    header:{
+                        "Content-Type":"application/json"
+                    },
+                    data:{
+                        "userid":this.$app.$def.UserData.UserId,
+                        "mapid":this.$app.$def.globalData.mapid,
+                        "enter_pos":enterPos,
+                    },
+
+                }).then((Response)=>{
+                    //console.log(Response);
+                    var data = JSON.parse(Response.data.data).data;
+                    //console.log(data);
+                    router.push({uri:"/pages/Battle",params:{initParams:data}});
+                }).catch(e=>{
+                    console.error(e)
+                })
+
+                
+            }
+        }
     },
     handleClick(e){
         var ret = null;
@@ -90,8 +175,7 @@ export default{
                 break;
             }
             var cy = obj[2][0],cx=obj[2][1],radius=obj[2][2];
-            //console.log(cx,cy);
-            //console.log((cx-clickX)**2+(cy-clickY)**2);
+
             if(((cx-clickX)**2+(cy-clickY)**2)<=radius**2){
                 console.log(obj);
                 ret = obj;
@@ -101,7 +185,6 @@ export default{
         }
         if(flag){
             console.log("none")
-            
         }
         return ret;
         

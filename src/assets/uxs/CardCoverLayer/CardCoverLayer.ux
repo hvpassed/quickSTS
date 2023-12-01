@@ -1,0 +1,44 @@
+<import name="card" src="../card/card.ux"></import>
+<template>
+    <div id="coverLayer" >
+        <card
+        class="cd"
+        for="card in cards"
+        card-prop="{{card}}"        
+        ></card>
+    </div>
+</template>
+
+<script>
+export default {
+    data(){
+      return {
+        cards:this.propCards
+      }
+    },
+    props:{
+      propCards:[],
+    },
+    onInit() {
+
+    },
+    onReady() {
+
+    },
+}
+</script>
+
+<style>
+#coverLayer{
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color:rgba(0, 0, 0,0.7);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: space-around;
+}
+</style>
