@@ -3,7 +3,8 @@ node_modules
 /dist
 /build
 /STS
-
+/src/assets/fonts
+/src/assets/images
 # sign
 
 # local env files
