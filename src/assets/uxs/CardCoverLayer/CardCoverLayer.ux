@@ -20,11 +20,14 @@ export default {
       propCards:[],
     },
     onInit() {
-
+      this.$watch('propCards', 'handlerPropCards');
     },
     onReady() {
 
     },
+    handlerPropCards(nVal,oVal){
+      this.cards = nVal;
+    }
 }
 </script>
 

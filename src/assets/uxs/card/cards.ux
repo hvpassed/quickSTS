@@ -48,7 +48,7 @@ export default {
 
     },
     sendedChanged(nVal, oVal) {
-        console.log(nVal)
+        //console.log(nVal)
         if (nVal != null) {
             this.selecting = null;
 

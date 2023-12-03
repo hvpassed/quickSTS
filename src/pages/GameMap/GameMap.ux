@@ -166,7 +166,7 @@ export default{
     handleClick(e){
         var ret = null;
         var flag = true;
-        console.log(e);
+        //console.log(e);
         var clickX=e.offsetX,clickY=e.offsetY;
         graph.first();
         while(true){
@@ -177,7 +177,7 @@ export default{
             var cy = obj[2][0],cx=obj[2][1],radius=obj[2][2];
 
             if(((cx-clickX)**2+(cy-clickY)**2)<=radius**2){
-                console.log(obj);
+                //console.log(obj);
                 ret = obj;
                 flag=false;
                 break;

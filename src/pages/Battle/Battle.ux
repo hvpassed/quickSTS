@@ -17,7 +17,7 @@
     <image src="../../assets/images/button/base2.png" id="dicordPile" onclick="dicordPileShow"></image>
     <!--text>123</text-->
     <div class="EnergyBadge">
-      <text class="energy">{{ NowEnergy }}/{{ MaxEnergy }}</text>
+      <text class="energy">{{ NowEnergy }}/{{ Player.MaxEnergy }}</text>
     </div>
     <div class="Enemies" style="position: absolute; top: 400px">
       <enemy
@@ -64,6 +64,12 @@ import router from '@system.router'
 export default {
   data() {
     return {
+      TARGET_TYPE:{
+        SINGLE:1,
+        SELF:0,
+        ALL:2
+      },
+      singlecardid:0,
       initParams:null,
       drawPileShowing:false,
       dicordPileShowing:false,
@@ -72,12 +78,11 @@ export default {
       Player: {
         MaxHp: 100,
         NowHp: 100,
-        NowBlock:40
+        NowBlock:40,
+        MaxEnergy: 3,
       },
       enemiesProps: //[{id,monsterid,MaxHp,NowHp,NowBlock}]
       [],
-
-      MaxEnergy: 3,
       NowEnergy: 3,
       selected: null,
       sending: null,
@@ -86,13 +91,14 @@ export default {
         width: 234,
         fontSize: 36
       },
-      cardIdMapAttribute:{},//cardid 对应属性（对象）,cards里边只存储，一些描述id:{"cardid","title","description","cost"}
+      cardIdMapAttribute:{},//cardid 对应属性（对象）,cards里边只存储，一些描述id:{"cardid","title","description","cost"，"select"}
       cards:[], //[{id,cardid,width,cardName,cardCost,cardDc}]
       drawCards:[],
       discordCards:[],
     };
   },
   onInit() {
+    
     //console.log(this.initParams)
     this.initParams = JSON.parse(this.initParams)
     //[{id,monsterid,MaxHp,NowHp,NowBlock,name,description}]
@@ -101,12 +107,13 @@ export default {
     this.Player = {
         MaxHp:  this.initParams["battle_player"].maxhp,
         NowHp: this.initParams["battle_player"].nowhp,
-        NowBlock:this.initParams["battle_player"].block
+        NowBlock:this.initParams["battle_player"].block,
+        MaxEnergy:this.initParams["battle_player"].cost
     };
     let intentObjs = this.initParams["intents"];
     this.initParams["monsters"].forEach(element => {
         let e1 = element;
-        
+
         intentObjs.forEach(e2=>{
           //console.log(e1,e2)
           if(e1.monsterid==e2.monsterid)
@@ -145,47 +152,47 @@ export default {
       var handPile = JSON.parse(this.initParams["battle_player"]["hand_pile"])["Array"]
       var drawPile = JSON.parse(this.initParams["battle_player"]["draw_pile"])["Array"]
       var discordPile = JSON.parse(this.initParams["battle_player"]["discord_pile"])["Array"]
-      var j =0;
+
       handPile.forEach(element=>{
         var cardobj = that.cardIdMapAttribute[element];
         that.cards.push({
-            id:j,
+            id:that.singlecardid,
             cardid:cardobj.cardid,
             width:150,
             cardName:cardobj.title,
             cardCost:cardobj.cost,
             cardDc:cardobj.description
         })
-        j+=1;
+        that.singlecardid+=1;
       })
 
       drawPile.forEach(element=>{
         var cardobj = that.cardIdMapAttribute[element];
         that.drawCards.push({
-            id:j,
+            id:that.singlecardid,
             cardid:cardobj.cardid,
             width:150,
             cardName:cardobj.title,
             cardCost:cardobj.cost,
             cardDc:cardobj.description
         })
-        j+=1;
+        that.singlecardid+=1;
       })
       //console.log(that.drawCards)
       discordPile.forEach(element=>{
         var cardobj = that.cardIdMapAttribute[element];
         that.discordCards.push({
-            id:j,
+            id:that.singlecardid,
             cardid:cardobj.cardid,
             width:150,
             cardName:cardobj.title,
             cardCost:cardobj.cost,
             cardDc:cardobj.description
         })
-        j+=1;
+        that.singlecardid+=1;
       })
     //console.log(that.discordCards)
-      
+      that.NowEnergy = that.Player.MaxEnergy;
     }).catch(Error=>{
       console.error(Error)
     })
@@ -199,29 +206,276 @@ export default {
 
   },
   sendCards(id) {
+    if(id==null)return;
+    let cardObj = null;
+    let that = this;
+    this.cards.forEach(el=>{
+      if(el.id==id){
+        cardObj = that.cardIdMapAttribute[el.cardid];
+      }
+    })
+    if(this.NowEnergy>=cardObj.cost){
+      
+      //console.log(this.SelectEnemy)
+      if(cardObj.select==1 && this.SelectEnemy==null){
+        return;
+      }
+      this.NowEnergy+=-cardObj.cost;
+      this.sendCardsById(id);
 
-
-
-    this.sendCardsById(id);
+    }
   },
   sendCardsById(id) {
-    this.cards = this.del(this.cards, id)
+    let that = this;
+    //发送卡牌
+    var cardParas = this.cardStringsConstructFromCardsPile();
+    var targetMonsterid=null;
+    if(this.SelectEnemy!=null){
+      for(var i = 0;i<this.enemiesProps.length;i++){
+        if(this.SelectEnemy==this.enemiesProps[i].id)
+        {
+          targetMonsterid=this.enemiesProps[i].monsterid;
+        }
+      } 
+    }
+
+    var sendData = {
+      userid:this.$app.$def.UserData.UserId,
+      index:id,
+      target_monsterid:targetMonsterid,
+      hand_card_ids:cardParas["hand_card_ids"],
+      draw_card_ids:cardParas["draw_card_ids"],
+      discord_card_ids:cardParas["discord_card_ids"],//可以从数据库中读取
+      hand_ids:cardParas["hand_ids"],
+      draw_ids:cardParas["draw_ids"],
+      discord_ids:cardParas["discord_ids"]
+    };
+    fetch.fetch({
+      url:this.$app.$def.url+":20002/battle/playCards",
+      method:"POST",
+      header:{
+        "Content-Type":"application/json"
+      },
+      data:sendData,
+    }).then(Response=>{
+      
+      var data = JSON.parse(Response.data.data).data
+
+      var aHandCards = data.handCardids
+      var aDrawCards = data.drawCardids
+      var aDiscordCards= data.discordCardids
+      that.resetCards(aHandCards,aDrawCards,aDiscordCards);
+      if(data.target_type==that.TARGET_TYPE.SINGLE){
+        var monsters = [data.monster];
+        that.resetMonsters(monsters);
+      }else if(data.target_type==that.TARGET_TYPE.ALL){
+        //暂时还没有
+        var monsters = [data.monsters];
+        that.resetMonsters(monsters);
+      }else if(data.target_type==that.TARGET_TYPE.SELF){
+        var playerObj = data.battle_player;
+        that.resetPlayer(playerObj);
+      }
+      var flag =true;
+      that.enemiesProps.forEach(element=>{
+
+        if(element.NowHp>0){
+
+          flag=false;
+        }
+      })
+      if(flag){
+        that.winGame();
+      }
+
+
+    }).catch(Error=>{
+      console.error(Error)
+    })
+
+    //this.cards = this.del(this.cards, id)
+  },
+  resetPlayer(playerObj){
+      //     Player: {
+      //   MaxHp: 100,
+      //   NowHp: 100,
+      //   NowBlock:40
+      // },
+    this.Player.MaxHp = playerObj.maxhp;
+    this.Player.NowHp = playerObj.nowhp;
+    this.Player.NowBlock = playerObj.block;
+    this.Player.MaxEnergy = playerObj.cost;
+  },
+  resetCards(aHandCardids,aDrawCardids,aDiscordCardids){
+    //cards,drawCards,discordCards
+    let that = this;
+
+    this.cards=[];
+    this.drawCards=[];
+    this.discordCards=[];
+    aHandCardids.forEach(element=>{
+        var cardobj = that.cardIdMapAttribute[element];
+        that.cards.push({
+            id:that.singlecardid,
+            cardid:cardobj.cardid,
+            width:150,
+            cardName:cardobj.title,
+            cardCost:cardobj.cost,
+            cardDc:cardobj.description
+        })
+        that.singlecardid+=1;
+    });
+
+    aDrawCardids.forEach(element=>{
+        var cardobj = that.cardIdMapAttribute[element];
+        that.drawCards.push({
+            id:that.singlecardid,
+            cardid:cardobj.cardid,
+            width:150,
+            cardName:cardobj.title,
+            cardCost:cardobj.cost,
+            cardDc:cardobj.description
+        })
+        that.singlecardid+=1;
+    });
+
+
+    aDiscordCardids.forEach(element=>{
+        var cardobj = that.cardIdMapAttribute[element];
+        
+        that.discordCards.push({
+            id:that.singlecardid,
+            cardid:cardobj.cardid,
+            width:150,
+            cardName:cardobj.title,
+            cardCost:cardobj.cost,
+            cardDc:cardobj.description
+        })
+        that.singlecardid+=1;
+    });
+
+    
+
+  },
+  resetMonsters(monsters){
+    //enemiesProps: //[{id,monsterid,MaxHp,NowHp,NowBlock}]
+    let that = this;
+    monsters.forEach(element=>{
+      for(var i = 0;i<that.enemiesProps.length;i++){
+
+        if(element.monsterid == that.enemiesProps[i].monsterid){
+
+          //console.log(element,that.enemiesProps[i])
+
+
+          that.enemiesProps[i].monsterid=element.monsterid
+          that.enemiesProps[i].MaxHp=element.maxhp
+          that.enemiesProps[i].NowHp=element.nowhp
+          that.enemiesProps[i].NowBlock=element.block
+
+        }
+      }
+    })
+
+
+  },
+  cardStringsConstructFromCardsPile(){
+    //从手牌数组创建字符串型，手牌数组
+    let that = this;
+    let ret = {};
+    let handCardids = "[";
+    let handIds = "[";
+    let flag = true;
+    for(var i = 0;i<this.cards.length;i++){
+      handCardids+=this.cards[i].cardid;
+      handIds += this.cards[i].id;
+      if(i!=this.cards.length-1){
+        handCardids+=",";
+        handIds+=",";
+      }else{
+        handCardids+="]";
+        handIds+="]";
+        flag = false;
+      }
+    }
+    if(flag){
+      handCardids+="]";
+      handIds+="]";
+      
+    }
+    flag =true;
+
+    ret["hand_card_ids"] = handCardids;
+    ret["hand_ids"] = handIds;
+
+
+
+    let drawCardids = "[";
+    let drawIds = "[";
+
+    for(var i = 0;i<this.drawCards.length;i++){
+      drawCardids+=this.drawCards[i].cardid;
+      drawIds += this.drawCards[i].id;
+      if(i!=this.drawCards.length-1){
+        drawCardids+=",";
+        drawIds+=",";
+      }else{
+        drawCardids+="]";
+        drawIds+="]";
+        flag = false;
+      }
+    }
+    if(flag){
+      drawCardids+="]";
+      drawIds+="]";
+      
+    }
+    flag =true;
+    ret["draw_card_ids"] = drawCardids;
+    ret["draw_ids"] = drawIds;
+
+    let discordCardids = "[";
+    let discordIds = "[";
+    for(var i = 0;i<this.discordCards.length;i++){
+      discordCardids+=this.discordCards[i].cardid;
+      discordIds += this.discordCards[i].id;
+      if(i!=this.discordCards.length-1){
+        discordCardids+=",";
+        discordIds+=",";
+      }else{
+        discordCardids+="]";
+        discordIds+="]";
+        flag = false;
+      }
+    }
+    if(flag){
+      discordCardids+="]";
+      discordIds+="]";
+      
+    }
+    flag =true;
+    ret["discord_card_ids"] = discordCardids;
+    ret["discord_ids"] = discordIds;
+
+    return ret;
+
   },
   del(arr, id) {
     let sid = id;
     arr = arr.filter(element => element.id != sid);
-    console.log(arr)
+    //console.log(arr)
     return arr;
   },
   sendBtnClicked() {
-    console.log("clicked")
+    
     if (this.selected != null) {
-
+      
       this.sendCards(this.selected)
       this.sending = true;
-      //console.log(this.sending)
+
       this.sending = null;
     }
+    this.SelectEnemy=null;
   },
   handleSelectingEnemy(e) {
     this.SelectEnemy = e.detail.id;
@@ -270,6 +524,9 @@ export default {
 
     }
     return ret;
+  },
+  winGame(){
+    console.log("win")
   }
 }
 </script>
