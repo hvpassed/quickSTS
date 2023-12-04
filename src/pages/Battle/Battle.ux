@@ -6,7 +6,7 @@
 <import name="card" src="../../assets/uxs/card/card.ux"></import>
 <import name="player" src="../../assets/uxs/player/player.ux"></import>
 <import name="cardLayer" src="../../assets/uxs/CardCoverLayer/CardCoverLayer.ux"></import>
- 
+
    
  
  
@@ -27,6 +27,7 @@
         prop-enemy="{{value}}"
         onenemy-select="handleSelectingEnemy"
         prop-select-enemy="{{SelectEnemy}}"
+
       ></enemy>
     </div>
 
@@ -47,7 +48,7 @@
       class="endTurnBtn"
       prop-text="结束回合"
       prop-style="{{btn1Style}}"
-      onclick="test"
+      onclick="endTurn"
     ></btn>
     <!-- <image class="btn" src="../../assets/images/button/buttonL.png"></image> -->
     <cardLayer if="{{drawPileShowing}}" prop-cards="{{drawCards}}"  onclick="closeDrawPileShow">
@@ -81,7 +82,7 @@ export default {
         NowBlock:40,
         MaxEnergy: 3,
       },
-      enemiesProps: //[{id,monsterid,MaxHp,NowHp,NowBlock}]
+      enemiesProps: //[{id,monsterid,MaxHp,NowHp,NowBlock,intent,name,description}]
       [],
       NowEnergy: 3,
       selected: null,
@@ -98,7 +99,7 @@ export default {
     };
   },
   onInit() {
-    
+    router.clear();
     //console.log(this.initParams)
     this.initParams = JSON.parse(this.initParams)
     //[{id,monsterid,MaxHp,NowHp,NowBlock,name,description}]
@@ -527,6 +528,63 @@ export default {
   },
   winGame(){
     console.log("win")
+  },
+  endTurn(){
+    let that = this;
+    fetch.fetch({
+      url:this.$app.$def.url+":20002/battle/endTurn",
+      method:"POST",
+      header:{
+        "Content-Type":"application/json"
+      },
+      data:{
+        "userid":this.$app.$def.UserData.UserId,
+      },
+    }).then(Response=>{
+      var data = JSON.parse(Response.data.data).data;
+      that.resetCards(data.handPile,data.drawPile,data.discordPile);
+      //console.log(data);
+      //抽牌结束
+      that.resetPlayer(data.battle_player);
+      //console.log(data.battle_player);
+      if(data.battle_player.nowhp<=0){
+        that.loseGame();
+      }
+      that.NowEnergy = that.Player.MaxEnergy;
+      that.resetMonsters(data.monsters);
+      that.resetIntent(data.intents);
+
+    }).catch(Error=>{
+      console.error(Error);
+    })
+  },
+  resetIntent(intents){
+    let that = this;
+    this.enemiesProps.forEach(element=>{
+      if(element.NowHp>0){
+      element.intent = that.intentParse(intents[element.monsterid]);
+      }
+    })
+    
+  },
+  loseGame(){
+    console.log("Lose");
+    fetch.fetch({
+      url:this.$app.$def.url+":20002/map/loseGame",
+      method:"POST",
+      header:{
+        "Content-Type":"application/json"
+      },
+      data:{
+        "userid":this.$app.$def.UserData.UserId,
+      },
+    }).then(Response=>{
+      router.push({
+        uri:"/pages/mainmenu"
+      })
+    }).catch(Error=>{
+      console.error(Error);
+    })
   }
 }
 </script>
@@ -552,6 +610,11 @@ export default {
   position: absolute;
   bottom: 0px;
   left: 0px;
+
+  background-color:rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  border: 1px solid #E3E5E7;
+
 }
 .endTurnBtn {
   position: absolute;

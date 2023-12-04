@@ -21,8 +21,15 @@
     </div>
     
     <image
+      if={{TYPE.SKELETON}}
       class="enemyimg"
-      src="../../images/enemy/skeleton/GIFS/Skeleton Idle.gif"
+      src="../../images/enemy/skeleton/GIFS/SkeletonIdle.gif"
+      style="height:{{height}}px;"
+    ></image>
+    <image
+      if={{TYPE.ZOMBIE}}
+      class="enemyimg"
+      src="../../images/enemy/zombie/movingzombie.gif"
       style="height:{{height}}px;"
     ></image>
      <image src="../../images/shadow.png"></image>
@@ -38,11 +45,17 @@ export default {
             maxHp: this.propEnemy.MaxHp,
             nowHp: this.propEnemy.NowHp,
             nowblock:this.propEnemy.NowBlock,
+            name:this.propEnemy.name,
             bar_perct: 1,
             selected: null,
             alive: true,
             id:this.propEnemy.id,
             selectedId:this.propSelectEnemy,
+            imgsrc:null,
+            TYPE:{
+              SKELETON:false,
+              ZOMBIE:false,
+            }
         }
     },
     props: {
@@ -54,9 +67,11 @@ export default {
                 NowHp:100,
                 NowBlock:0,
                 intent:null,
+                name:"skeleton"
             }
         },
         propSelectEnemy:null,
+
         width: {
             default: 100
         },
@@ -67,7 +82,21 @@ export default {
     onInit() {
         this.$watch('propEnemy.NowBlock', 'handlerNowBlockChanged');
         this.$watch('propEnemy.NowHp', 'handlerpropNowHpChanged');
-        this.$watch('propSelectEnemy','handlerpropSelectEnemyChanged')
+        this.$watch('propSelectEnemy','handlerpropSelectEnemyChanged');
+        this.$watch("propEnemy.intent","handlerpropEnemyIntent")
+        if(this.name==="skeleton"){
+          this.TYPE.SKELETON=true
+        }else if(this.name==="zombie"){
+          this.TYPE.ZOMBIE=true;
+        }
+        
+        
+    },
+    handlerpropEnemyIntent(nVal,oVal){
+      this.intent = nVal;
+    },
+    onReady(){
+      //this.isReady=true;
     },
     handlerpropSelectEnemyChanged(nVal,oVal){
       

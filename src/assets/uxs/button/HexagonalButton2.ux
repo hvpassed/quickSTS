@@ -1,0 +1,66 @@
+<template>
+    <div class="wrapper" style="height:{{propStyle.height}}px;">
+        <a href="" class="button hidden" style="height:{{propStyle.height}}px;width:{{propStyle.width}}px;font-size:{{propStyle.fontSize}}px;" onclick="handleClicked">{{propText}}</a>
+        <a href="" class="button top" style="height:{{propStyle.height}}px;width:{{propStyle.width}}px;font-size:{{propStyle.fontSize}}px;" >{{propText}}</a>
+    </div>
+</template>
+<script>
+export default {
+    data(){
+        return {
+            
+        }
+    },
+    props: {
+      propText:{
+          type:String,
+          default:"---"
+      },
+      propStyle:{
+          type:Object,
+          default:{
+              height:81,
+              width:234,
+              fontSize:36
+          }
+      }
+    },
+    handleClicked(){
+        this.$emit('sendBtnClicked', null)
+    }
+}
+</script>
+<style>
+.wrapper{
+    width: 234px;
+    position: relative;
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+
+}
+.button{
+/* 
+    border: 3px solid rgba(0, 0, 0, 0.95);
+    border-radius:20px; */
+    /* background-color: #ceeef8; */
+    /* background-color:#ADD8E6; */
+    position: absolute;
+    color: rgba(0, 0, 0, 0.95);
+    text-decoration: none;
+    text-align: center;
+    justify-content: center;
+
+}
+.top{
+    background-image: url("../../images/button/buttonL.png");
+    
+}
+.hidden{
+    background-image: url("../../images/button/buttonLRed.png");
+    left: 0px;
+}
+.top:active{
+    visibility: hidden;
+}
+</style>

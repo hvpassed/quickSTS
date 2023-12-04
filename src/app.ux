@@ -15,7 +15,7 @@ hook2global.$notification = $notification
 hook2global.$router =$router
 export default {
   onCreate() {},
-  url:"http://127.0.0.1",
+  url:"http://10.129.5.123",
   globalData:{
     graphSeed:0,
     curPos:[-1,0],
@@ -32,6 +32,7 @@ export default {
     maxhp:100,
     nowhp:100,
     cardids:[],
+    playing:0,
   }
 }
 </script>

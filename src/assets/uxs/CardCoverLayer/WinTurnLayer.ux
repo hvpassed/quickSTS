@@ -1,0 +1,211 @@
+<import name="card" src="../card/card.ux"></import>
+<import name="myButton" src="../button/HexagonalButton2.ux"></import>
+
+ 
+<template>
+    <div class="WinGameLayerWrapper">
+        <div class="selectCardBlock">
+            <card card-prop={{canSelectCards1}} oncard-clicking="clickedSelectCard" prop-selected={{SelectCard1}} ></card>
+            <card card-prop={{canSelectCards2}} oncard-clicking="clickedSelectCard" prop-selected={{SelectCard1}}></card>
+            <card card-prop={{canSelectCards3}} oncard-clicking="clickedSelectCard" prop-selected={{SelectCard1}}></card>
+            <myButton prop-text="选择" prop-style={{btnStyle}} class="btn"></myButton>
+
+        </div>
+        <div class="deleteCardBlock">
+
+            <div class="blockAl leftTran">
+                <text class="WinGameText">删除一张牌</text>
+
+                <myButton prop-text="删除" prop-style={{btnStyle}}  class="btn2" onclick="clickDelete"></myButton>
+            </div>    
+            <div class="blockAl leftTran">    
+                <text class="WinGameText">恢复30HP</text>
+
+                <myButton prop-text="恢复30HP" prop-style={{btnStyle}} class="btn3" onclick="clickRecover"></myButton>
+            </div> 
+            <div class="blockAl">    
+                <myButton prop-text="跳过" prop-style={{btnStyle}} class="btn6" onclick="clickIgnore"></myButton>
+            </div> 
+        </div>
+        <div class="recoveryBlock" if={{show}}>
+            <div id="btnsBlock">
+                <myButton prop-text="确定" prop-style={{btnStyle}} class="btn" id ="btn4" onclick="clickDeleteCon"></myButton>
+                <myButton prop-text="取消" prop-style={{btnStyle}} class="btn" id ="btn5" onclick="clickCancle"></myButton>
+            </div>
+            <div class="cardBox">
+                <card
+                    class="manyCards"
+                    for="card in allCards"
+                    card-prop="{{card}}"       
+                    oncard-clicking="clickedDeleteCard" prop-selected={{SelectCard2}} 
+                ></card>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    data(){
+        return {
+            propStyle:{
+                height:81,
+                width:234,
+                fontSize:36
+
+            },
+            btnStyle: {
+                height: 81,
+                width: 234,
+                fontSize: 36
+            },
+            show:false,
+            allCards:this.propAllCards,
+            canSelectCards1:this.propCanSelectCards[0],
+            canSelectCards2:this.propCanSelectCards[1],
+            canSelectCards3:this.propCanSelectCards[2],
+            SelectCard1:null,
+            SelectCard2:null,
+        }
+    },
+    props:{
+        propAllCards:[],
+        propCanSelectCards:[],
+    },
+    clickedSelectCard(e){
+        this.SelectCard1 = e.detail.id;
+    },
+    clickedDeleteCard(e){
+        this.SelectCard2 = e.detail.id;
+    },
+    clickDelete(){
+        this.show=true;
+    },
+    clickRecover(){
+        //TODO
+    },
+    clickIgnore(){
+
+    },
+    clickDeleteCon(){
+
+    },
+    clickCancle(){
+        this.show= false;
+    },
+    next(){
+
+    }
+}
+</script>
+
+<style>
+
+.WinGameLayerWrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* background-color: #00ffff; */
+}
+.selectCardBlock{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: space-around;
+    width: 550px;
+    border: 1px solid #000000;
+    padding: 10px;
+
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    
+}
+.blockAl{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 550px;
+}
+.btn6{
+    position: relative;
+    left: 158px;
+    margin-top: 20px;
+}
+.btn3{
+
+    left:158px;
+}
+.btn2{
+
+    left:158px;
+}
+.btn{
+    width: 274px;
+    margin-top: 30px;
+    left: 20px;
+}
+.deleteCardBlock{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* align-items: flex-start; */
+    align-content: center;
+    border: 1px solid #000000;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    width: 550px;
+}
+
+@font-face{
+	font-family:led;
+	src:url( "../../fonts/NotoSansMonoCJKsc-Regular.otf" ) 
+}
+.WinGameText{
+    
+    font-family: led;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 40px;
+    
+}
+#btn2{
+    left: 200px;
+}
+
+.recoveryBlock{
+    position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color:rgba(0, 0, 0,0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-wrap: wrap;
+
+}
+.manyCards{
+    margin: 20px;
+}
+.cardBox{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+#btnsBlock{
+    display: flex;
+    flex-direction: row;
+    position: relative;
+
+    justify-content: center;
+    width: 750px;
+}
+</style>

@@ -1,0 +1,111 @@
+<import name="WinGameLayer" src="../../assets/uxs//CardCoverLayer/WinTurnLayer.ux"></import>
+ 
+<template>
+    <WinGameLayer prop-can-select-cards={{canSelectCards}} prop-all-cards={{allCards}}></WinGameLayer>
+</template>
+
+<script>
+export default {
+    data(){
+        return {
+            canSelectCards:[
+                {
+                    id:0,
+                    cardid:1,
+                    width:150,
+                    cardName:"攻击",
+                    cardCost:"1",
+                    cardDc:"普通攻击"
+                },
+                {
+                    id:1,
+                    cardid:2,
+                    width:150,
+                    cardName:"防御",
+                    cardCost:"1",
+                    cardDc:"普通防御"
+                },
+                {
+                    id:2,
+                    cardid:3,
+                    width:150,
+                    cardName:"技能",
+                    cardCost:"1",
+                    cardDc:"普通技能"
+                },
+            ],
+            allCards:[
+                {
+                    id:0,
+                    cardid:1,
+                    width:150,
+                    cardName:"攻击",
+                    cardCost:"1",
+                    cardDc:"普通攻击"
+                },
+                {
+                    id:1,
+                    cardid:2,
+                    width:150,
+                    cardName:"防御",
+                    cardCost:"1",
+                    cardDc:"普通防御"
+                },
+                {
+                    id:2,
+                    cardid:3,
+                    width:150,
+                    cardName:"技能",
+                    cardCost:"1",
+                    cardDc:"普通技能"
+                },
+                                {
+                    id:3,
+                    cardid:3,
+                    width:150,
+                    cardName:"技能",
+                    cardCost:"1",
+                    cardDc:"普通技能"
+                },
+                                {
+                    id:4,
+                    cardid:3,
+                    width:150,
+                    cardName:"技能",
+                    cardCost:"1",
+                    cardDc:"普通技能"
+                },
+                                {
+                    id:5,
+                    cardid:3,
+                    width:150,
+                    cardName:"技能",
+                    cardCost:"1",
+                    cardDc:"普通技能"
+                },
+                {
+                    id:6,
+                    cardid:3,
+                    width:150,
+                    cardName:"技能",
+                    cardCost:"1",
+                    cardDc:"普通技能"
+                },
+                {
+                    id:7,
+                    cardid:3,
+                    width:150,
+                    cardName:"技能",
+                    cardCost:"1",
+                    cardDc:"普通技能"
+                },
+            ]
+        }
+    },
+
+}
+</script>
+
+<style>
+    
+</style>

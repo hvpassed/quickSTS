@@ -39,7 +39,7 @@
     "logLevel": "debug"
   },
   "router": {
-    "entry": "pages/mainmenu",
+    "entry": "pages/debug",
     "pages": {
       "pages/Battle": {
         "component": "Battle"
@@ -52,6 +52,9 @@
       },
       "pages/GameMap":{
         "component": "GameMap"
+      },
+      "pages/debug":{
+        "component": "debug"
       }
     }
 

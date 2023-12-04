@@ -98,6 +98,7 @@ export default{
                                 this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
                                 this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
                                 this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
+                                this.$app.$def.PlayerData.playing=res.data.player.playing
                                 router.push({
                                     uri:"/pages/GameMap"
                                 })
@@ -138,6 +139,7 @@ export default{
                                 this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
                                 this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
                                 this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
+                                this.$app.$def.PlayerData.playing=res.data.player.playing
                                 router.push({
                                     uri:"/pages/GameMap"
                                 })

@@ -44,4 +44,7 @@ export default {
   align-items: flex-start;
   align-content: space-around;
 }
+.cd{
+  margin: 20px;
+}
 </style>

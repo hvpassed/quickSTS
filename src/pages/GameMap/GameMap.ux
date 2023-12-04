@@ -20,6 +20,26 @@ export default{
     onInit() {
         console.log(this.$app.$def)
         this.curPos=this.$app.$def.globalData.curPos
+        if(this.$app.$def.PlayerData.playing==1){
+            fetch.fetch({
+                url:this.$app.$def.url+":20002/battle/reInitBattle",
+                method:"POST",
+                header:{
+                    "Content-Type":"application/json"
+                },
+                data:{
+                    "userid":this.$app.$def.UserData.UserId,
+                },
+
+            }).then((Response)=>{
+                //console.log(Response);
+                var data = JSON.parse(Response.data.data).data;
+                //console.log(data);
+                router.replace({uri:"/pages/Battle",params:{initParams:data}});
+            }).catch(e=>{
+                console.error(e)
+            })
+        }
     },
     onReady() {
 
@@ -154,7 +174,7 @@ export default{
                     //console.log(Response);
                     var data = JSON.parse(Response.data.data).data;
                     //console.log(data);
-                    router.push({uri:"/pages/Battle",params:{initParams:data}});
+                    router.replace({uri:"/pages/Battle",params:{initParams:data}});
                 }).catch(e=>{
                     console.error(e)
                 })
