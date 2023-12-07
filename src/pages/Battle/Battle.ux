@@ -6,7 +6,8 @@
 <import name="card" src="../../assets/uxs/card/card.ux"></import>
 <import name="player" src="../../assets/uxs/player/player.ux"></import>
 <import name="cardLayer" src="../../assets/uxs/CardCoverLayer/CardCoverLayer.ux"></import>
-
+<!-- <import name="WinLayer" src="../../assets/uxs/CardCoverLayer/WinTurnLayer.ux"></import>
+  -->
    
  
  
@@ -56,6 +57,7 @@
     </cardLayer>
     <cardLayer  if="{{dicordPileShowing}}" prop-cards="{{discordCards}}" onclick="closeDicordPileShow">
     </cardLayer>
+    <!-- <WinLayer class="winlayer" if={{won}} prop-can-select-cards={{canSelectCards}} prop-all-cards={{allCards}}></WinLayer> -->
   </div>
 </template>
 <script>
@@ -65,11 +67,14 @@ import router from '@system.router'
 export default {
   data() {
     return {
+      allCards:[],
+      canSelectCards:[],
       TARGET_TYPE:{
         SINGLE:1,
         SELF:0,
         ALL:2
       },
+      won:false,
       singlecardid:0,
       initParams:null,
       drawPileShowing:false,
@@ -271,7 +276,8 @@ export default {
         that.resetMonsters(monsters);
       }else if(data.target_type==that.TARGET_TYPE.ALL){
         //暂时还没有
-        var monsters = [data.monsters];
+
+        var monsters = data.monsters;
         that.resetMonsters(monsters);
       }else if(data.target_type==that.TARGET_TYPE.SELF){
         var playerObj = data.battle_player;
@@ -362,6 +368,7 @@ export default {
     //enemiesProps: //[{id,monsterid,MaxHp,NowHp,NowBlock}]
     let that = this;
     monsters.forEach(element=>{
+
       for(var i = 0;i<that.enemiesProps.length;i++){
 
         if(element.monsterid == that.enemiesProps[i].monsterid){
@@ -372,6 +379,8 @@ export default {
           that.enemiesProps[i].monsterid=element.monsterid
           that.enemiesProps[i].MaxHp=element.maxhp
           that.enemiesProps[i].NowHp=element.nowhp
+
+          //console.log(that.enemiesProps[i])
           that.enemiesProps[i].NowBlock=element.block
 
         }
@@ -475,6 +484,7 @@ export default {
       this.sending = true;
 
       this.sending = null;
+      this.selected = null
     }
     this.SelectEnemy=null;
   },
@@ -528,6 +538,83 @@ export default {
   },
   winGame(){
     console.log("win")
+    let that = this;
+    // this.won=true;
+    fetch.fetch({
+      url:this.$app.$def.url+":20002/battle/winBattle",
+      method:"POST",
+      header:{
+        "Content-Type":"application/json"
+      },
+      data:{
+        "userid":that.$app.$def.UserData.UserId
+      },
+    }).then(Response=>{
+      var data = JSON.parse(Response.data.data).data
+      //console.log(data);
+      var ac = data.AllCards;
+      var sc =data.SelectCards;
+      var isWin = data.win;
+      if(isWin){
+        fetch.fetch({
+          url:this.$app.$def.url+":20002/battle/totalWin",
+          method:"POST",
+          header:{
+            "Content-Type":"application/json"
+          },
+          data:{
+            "userid":that.$app.$def.UserData.UserId,
+            "mapid":that.$app.$def.globalData.mapid
+          },
+        }).then(Response=>{
+          router.replace({
+            uri:"/pages/WinPage",
+            params:{
+              text:"恭喜!"
+          }
+        })
+        })
+
+      }
+      else{
+        var i=0;
+        ac.forEach(element=>{
+          that.allCards.push({
+            id:i,
+            cardid:element.cardid,
+            width:150,
+            cardName:element.title,
+            cardCost:element.cost,
+            cardDc:element.description
+          })
+          i+=1;
+        })
+        i=0;
+        sc.forEach(element=>{
+          that.canSelectCards.push({
+            id:i,
+            cardid:element.cardid,
+            width:150,
+            cardName:element.title,
+            cardCost:element.cost,
+            cardDc:element.description
+          })
+          i+=1
+        })
+        //console.log(that.allCards)
+        //console.log(that.canSelectCards)
+        that.$app.$def.CardData.allCards = that.allCards;
+        that.$app.$def.CardData.canSelectCards=that.canSelectCards;
+        router.replace({
+          uri:"/pages/winGame",
+
+        })
+      }
+
+
+    }).catch(Error=>{
+      console.error(Error)
+    })
   },
   endTurn(){
     let that = this;
@@ -570,7 +657,7 @@ export default {
   loseGame(){
     console.log("Lose");
     fetch.fetch({
-      url:this.$app.$def.url+":20002/map/loseGame",
+      url:this.$app.$def.url+":20002/battle/lostGame",
       method:"POST",
       header:{
         "Content-Type":"application/json"
@@ -579,8 +666,11 @@ export default {
         "userid":this.$app.$def.UserData.UserId,
       },
     }).then(Response=>{
-      router.push({
-        uri:"/pages/mainmenu"
+      router.replace({
+        uri:"/pages/WinPage",
+        params:{
+          text:"恭喜!"
+        }
       })
     }).catch(Error=>{
       console.error(Error);
@@ -676,5 +766,10 @@ export default {
   flex-wrap: wrap;
   align-items: flex-start;
   align-content: space-around;
+}
+.winlayer{
+  position: fixed;
+  height: 100%;
+  width:100%;
 }
 </style>

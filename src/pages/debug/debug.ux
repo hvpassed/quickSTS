@@ -1,7 +1,7 @@
-<import name="WinGameLayer" src="../../assets/uxs//CardCoverLayer/WinTurnLayer.ux"></import>
- 
+
 <template>
-    <WinGameLayer prop-can-select-cards={{canSelectCards}} prop-all-cards={{allCards}}></WinGameLayer>
+    <div></div>
+    
 </template>
 
 <script>

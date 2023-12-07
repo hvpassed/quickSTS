@@ -32,6 +32,18 @@
       src="../../images/enemy/zombie/movingzombie.gif"
       style="height:{{height}}px;"
     ></image>
+    <image
+      if={{TYPE.MASTER}}
+      class="enemyimg"
+      src="../../images/enemy/master/dracula.gif"
+      style="height:{{height}}px;"
+    ></image>
+    <image
+      if={{TYPE.BOSS}}
+      class="enemyimg"
+      src="../../images/enemy/boss/phoenix_01_over.gif"
+      style="height:{{height}}px;"
+    ></image>
      <image src="../../images/shadow.png"></image>
   </div>
 </template>
@@ -55,6 +67,8 @@ export default {
             TYPE:{
               SKELETON:false,
               ZOMBIE:false,
+              MASTER:false,
+              BOSS:false,
             }
         }
     },
@@ -84,12 +98,18 @@ export default {
         this.$watch('propEnemy.NowHp', 'handlerpropNowHpChanged');
         this.$watch('propSelectEnemy','handlerpropSelectEnemyChanged');
         this.$watch("propEnemy.intent","handlerpropEnemyIntent")
+        console.log(this.name)
         if(this.name==="skeleton"){
           this.TYPE.SKELETON=true
         }else if(this.name==="zombie"){
           this.TYPE.ZOMBIE=true;
+        }else if(this.name==="master"){
+          this.TYPE.MASTER=true;
+        }else if(this.name==="Boss")
+        {
+          this.TYPE.BOSS=true;
+
         }
-        
         
     },
     handlerpropEnemyIntent(nVal,oVal){

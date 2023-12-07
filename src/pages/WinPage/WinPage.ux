@@ -1,0 +1,39 @@
+<template>
+    <div class = "winPagewrapper" onclick="returnMainMenu">
+        <text id="WinPageText" value="{{text}}"></text>        
+    </div>
+</template>
+
+<script>
+const fontLoaded = localStorage.getItem('fontLoaded');
+import router from "@system.router"
+export default {
+    data(){
+        return {
+            text:"恭喜！",
+        }
+    },
+    onInit() {
+
+    },
+    returnMainMenu(){
+        router.clear()
+        router.push({
+            uri:"/pages/mainmenu"
+        })
+    }
+}
+</script>
+
+<style>
+
+.winPagewrapper{
+    background-color: #7fffd4;
+    display: flex;
+    justify-content: center;
+}
+#WinPageText{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 50px;
+}
+</style>

@@ -39,7 +39,7 @@
     "logLevel": "debug"
   },
   "router": {
-    "entry": "pages/debug",
+    "entry": "pages/mainmenu",
     "pages": {
       "pages/Battle": {
         "component": "Battle"
@@ -55,6 +55,12 @@
       },
       "pages/debug":{
         "component": "debug"
+      },
+      "pages/winGame":{
+        "component": "winGame"
+      },
+      "pages/WinPage":{
+        "component": "WinPage"
       }
     }
 

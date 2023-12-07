@@ -3,6 +3,7 @@
  * 应用级别的配置，供所有页面公用
  */
 
+
 const $utils = require('./helper/utils').default
 const $apis = require('./helper/apis').default
 const $notification = require('@system.notification').default
@@ -13,6 +14,7 @@ hook2global.$utils = $utils
 hook2global.$apis = $apis
 hook2global.$notification = $notification
 hook2global.$router =$router
+
 export default {
   onCreate() {},
   url:"http://10.129.5.123",
@@ -33,8 +35,13 @@ export default {
     nowhp:100,
     cardids:[],
     playing:0,
+  },
+  CardData:{
+    allCards:null,
+    canSelectCards:null,
   }
 }
 </script>
 <style>
+
 </style>

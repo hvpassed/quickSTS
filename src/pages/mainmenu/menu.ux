@@ -2,7 +2,7 @@
 <template>
     <div class="wrapper">
         
-        <input type="button" class="btn" value="t" onclick="logClick">
+        <input type="button" class="btn" value="开始游戏" onclick="logClick">
         <image class="bg" src="/assets/images/menu/background.png" ></image>
 
     </div>
@@ -47,7 +47,7 @@ export default {
     background-color:rgba(255, 255, 255,0.5);
     z-index: 1;
     font-size: 30px;
-  
+
     top: 700px;
     left: 150px;
 

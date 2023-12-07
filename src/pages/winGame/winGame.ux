@@ -1,0 +1,347 @@
+<import name="card" src="../../assets/uxs/card/card.ux"></import>
+<import name="myButton" src="../../assets/uxs/button/HexagonalButton2.ux"></import>
+
+ 
+<template>
+    <div class="WinGameLayerWrapper">
+        <div class="selectCardBlock">
+            <card if={{showSelet}} card-prop={{canSelectCards1}} oncard-clicking="clickedSelectCard" prop-selected={{SelectCard1}} ></card>
+            <card if={{showSelet}} card-prop={{canSelectCards2}} oncard-clicking="clickedSelectCard" prop-selected={{SelectCard1}}></card>
+            <card if={{showSelet}} card-prop={{canSelectCards3}} oncard-clicking="clickedSelectCard" prop-selected={{SelectCard1}}></card>
+            <myButton if={{showSelet}} prop-text="选择" prop-style={{btnStyle}} class="btn" onclick="clickSelect"></myButton>
+            <div class="blockAl leftTran" if={{showDelete}}>
+                <text class="WinGameText">删除一张牌</text>
+
+                <myButton prop-text="删除" prop-style={{btnStyle}}  class="btn2" onclick="clickDelete"></myButton>
+            </div>   
+        </div>
+        <div  class="deleteCardBlock" if={{recover}}>
+            <div class="blockAl leftTran">    
+            <text class="WinGameText">恢复30HP</text>
+
+                <myButton prop-text="恢复30HP" prop-style={{btnStyle}} class="btn3" onclick="clickRecover"></myButton>
+            </div> 
+
+        </div>
+            <div class="blockAl">    
+                <myButton prop-text="返回地图" prop-style={{btnStyle}} class="btn6" onclick="clickIgnore"></myButton>
+            </div> 
+        <div class="recoveryBlock" if={{show}}>
+            <div id="btnsBlock">
+                <myButton prop-text="确定" prop-style={{btnStyle}} class="btn" id ="btn4" onclick="clickDeleteCon"></myButton>
+                <myButton prop-text="取消" prop-style={{btnStyle}} class="btn" id ="btn5" onclick="clickCancle"></myButton>
+            </div>
+            <div class="cardBox">
+                <card
+                    class="manyCards"
+                    for="card in allCards"
+                    card-prop="{{card}}"       
+                    oncard-clicking="clickedDeleteCard" prop-selected={{SelectCard2}} 
+                ></card>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import fetch from "@system.fetch";
+import router from "@system.router";
+export default {
+    data(){
+        return {
+            propStyle:{
+                height:81,
+                width:234,
+                fontSize:36
+
+            },
+            btnStyle: {
+                height: 81,
+                width: 234,
+                fontSize: 36
+            },
+            show:false,
+            allCards:this.$app.$def.CardData.allCards,
+            canSelectCards1:this.$app.$def.CardData.canSelectCards[0],
+            canSelectCards2:this.$app.$def.CardData.canSelectCards[1],
+            canSelectCards3:this.$app.$def.CardData.canSelectCards[2],
+            SelectCard1:null,
+            SelectCard2:null,
+            recover:true,
+            showDelete:true,
+            showSelet:true,
+
+        }
+    },
+    onInit() {
+
+
+    },
+    // props:{
+    //     propAllCards:[],
+    //     propCanSelectCards:[],
+    // },
+    clickedSelectCard(e){
+        this.SelectCard1 = e.detail.id;
+    },
+    clickedDeleteCard(e){
+        this.SelectCard2 = e.detail.id;
+    },
+    clickDelete(){
+        this.show=true;
+    },
+    clickRecover(){
+        //TODO
+        this.recover=false;
+        let that =this;
+        fetch.fetch({
+            url:this.$app.$def.url+":20002/battle/recoverHp",
+            method:"POST",
+            header:{
+                "Content-Type":"application/json"
+            },
+            data:{
+                "userid":that.$app.$def.UserData.UserId,
+                "mapid":that.$app.$def.globalData.mapid,
+                "value":30
+            },
+        }).then((Response)=>{
+            
+            console.log(Response)
+            that.clickIgnore();
+        })
+    },
+    clickIgnore(){
+        let that = this;
+
+        fetch.fetch({
+            url:that.$app.$def.url+":20002/map/returnMap",
+
+            method:"POST",
+
+            header:{
+                "Content-Type":"application/json"
+            },
+            data:{
+
+
+                "mapid":that.$app.$def.globalData.mapid,
+
+
+
+            },
+        }).then(Response=>{
+            console.log(Response)
+            var carPos = JSON.parse(JSON.parse(Response.data.data).data.currentposition)
+
+            this.$app.$def.globalData.curPos=[carPos[0],carPos[1]]
+            
+            router.replace({
+                uri:"/pages/GameMap"
+            })
+        }).catch(Error=>{
+            console.error(Error)
+        })
+    },
+    clickDeleteCon(){
+        if(this.SelectCard2!=null){
+            
+            let that = this;
+            this.recover=false;
+            this.show=false;
+            this.showDelete=false;
+
+            that.allCards.forEach(element => {
+                if(element.id==this.SelectCard2){
+                    console.log(element,element.cardid)
+                    fetch.fetch({
+                        url:that.$app.$def.url+":20002/battle/deleteCard",
+
+                        method:"POST",
+
+                        header:{
+                            "Content-Type":"application/json"
+                        },
+                        data:{
+                            "userid":that.$app.$def.UserData.UserId,
+
+                            "mapid":that.$app.$def.globalData.mapid,
+
+                            "cardid":element.cardid,
+
+                        },
+                    }).then(Response=>{
+                        
+                        console.log(Response);
+
+                    }).catch(Error=>{
+                        console.error(Error);
+                    })
+                }
+            });
+
+        }
+    },
+    clickCancle(){
+        this.show= false;
+    },
+    next(){
+
+    },
+    clickSelect(){
+        let that = this;
+        if(this.SelectCard1!=null){
+            this.recover=false;
+            this.showSelet=false;
+            let cardid;
+
+            if(this.SelectCard1==this.canSelectCards1.id){
+                cardid = this.canSelectCards1.cardid;
+
+            }else if(this.SelectCard1==this.canSelectCards2.id){
+                cardid = this.canSelectCards2.cardid;
+
+            }else if(this.SelectCard1==this.canSelectCards3.id){
+                cardid = this.canSelectCards3.cardid;
+
+            }
+
+            fetch.fetch({
+                url:this.$app.$def.url+":20002/battle/addCard",
+
+                method:"POST",
+
+                header:{
+                    "Content-Type":"application/json"
+                },
+                data:{
+                    "userid":that.$app.$def.UserData.UserId,
+
+                    "mapid":that.$app.$def.globalData.mapid,
+
+                    "cardids":cardid
+                },
+            }).then(Response=>{
+                
+                console.log(Response);
+
+            }).catch(Error=>{
+                console.error(Error);
+            })
+
+
+        }
+    }
+}
+</script>
+
+<style>
+
+.WinGameLayerWrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* background-color: #00ffff; */
+}
+.selectCardBlock{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: space-around;
+    width: 550px;
+    border: 1px solid #000000;
+    padding: 10px;
+
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    
+}
+.blockAl{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 550px;
+}
+.btn6{
+    position: relative;
+    left: 158px;
+    margin-top: 20px;
+}
+.btn3{
+
+    left:158px;
+}
+.btn2{
+
+    left:158px;
+}
+.btn{
+    width: 274px;
+    margin-top: 30px;
+    left: 20px;
+}
+.deleteCardBlock{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* align-items: flex-start; */
+    align-content: center;
+    border: 1px solid #000000;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    width: 550px;
+}
+
+@font-face{
+	font-family:led;
+	src:url( "../../fonts/NotoSansMonoCJKsc-Regular.otf" ) 
+}
+.WinGameText{
+    
+    font-family: led;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 40px;
+    
+}
+#btn2{
+    left: 200px;
+}
+
+.recoveryBlock{
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color:rgba(0, 0, 0,0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-wrap: wrap;
+
+}
+.manyCards{
+    margin: 20px;
+}
+.cardBox{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+#btnsBlock{
+    display: flex;
+    flex-direction: row;
+    position: relative;
+
+    justify-content: center;
+    width: 750px;
+}
+</style>

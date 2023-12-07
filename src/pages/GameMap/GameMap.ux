@@ -15,14 +15,25 @@ export default{
         return {
             curPos:[-1,0],
             monstericon:null,
+            firstInit:true,
+            mapSeed:null,
+            clickEnable:false,
+            mapEndPos:[-2,0]
         }
     },
     onInit() {
-        console.log(this.$app.$def)
+
+    },
+    onReady() {
+
+    },
+    onShow() {
+        let that = this;
         this.curPos=this.$app.$def.globalData.curPos
+
         if(this.$app.$def.PlayerData.playing==1){
             fetch.fetch({
-                url:this.$app.$def.url+":20002/battle/reInitBattle",
+                url:this.$app.$def.url+":20002/battle/existBattle",
                 method:"POST",
                 header:{
                     "Content-Type":"application/json"
@@ -30,33 +41,114 @@ export default{
                 data:{
                     "userid":this.$app.$def.UserData.UserId,
                 },
-
-            }).then((Response)=>{
-                //console.log(Response);
+            }).then(Response=>{
                 var data = JSON.parse(Response.data.data).data;
-                //console.log(data);
-                router.replace({uri:"/pages/Battle",params:{initParams:data}});
-            }).catch(e=>{
-                console.error(e)
+                console.log("data:",data);
+                if(data.existBattle==0){
+                    that.curPos = JSON.parse(data.curpos);
+                    that.mapSeed = data.seed
+                    that.$element('bgcanvas').getBoundingClientRect({
+                        success:(data)=>{
+                            console.log("curpos:",that.curPos)
+                            if(that.firstInit){
+                                graph.init(5,5,data.width,data.height,30,that.$app.$def.globalData.graphSeed);
+                            }
+                            else{
+                                graph.init(5,5,data.width,data.height,30,that.mapSeed);
+                            }
+                            that.$app.$def.globalData.graph = graph
+                            if(that.firstInit){
+                                var endPos = "["+(graph.data.levels-1)+",0]"
+                                
+                                fetch.fetch({
+                                    url:this.$app.$def.url+":20002/map/setEndPos",
+                                    method:"POST",
+                                    header:{
+                                        "Content-Type":"application/json"
+                                    },
+                                    data:{
+                                        "userid":this.$app.$def.UserData.UserId,
+                                        "endPos":endPos
+                                    },
+                                }).then(Response=>{
+                                    console.log(Response)
+                                    that.mapEndPos=[(graph.data.levels-1),0]
+                                }).catch(Error=>{
+                                    console.error(Error)
+                                })
+                            }
+                            console.log(graph)
+                            //检查是否在战斗
+                            that.drawMap();
+                            that.clickEnable=true;
+                        }
+                    })
+                }else{
+                    fetch.fetch({
+                        url:this.$app.$def.url+":20002/battle/reInitBattle",
+                        method:"POST",
+                        header:{
+                            "Content-Type":"application/json"
+                        },
+                        data:{
+                            "userid":this.$app.$def.UserData.UserId,
+                        },
+
+                    }).then((Response)=>{
+                        //console.log(Response);
+                        var data = JSON.parse(Response.data.data).data;
+                        //console.log(data);
+                        router.replace({uri:"/pages/Battle",params:{initParams:data}});
+                    }).catch(e=>{
+                        console.error(e)
+                    })
+                }
+            }).catch(Error=>{
+                console.error(Error)
+            })
+
+
+
+
+        }else{
+            that.$element('bgcanvas').getBoundingClientRect({
+                success:(data)=>{
+                    console.log("curpos:",that.curPos)
+                    if(that.firstInit){
+                        graph.init(5,5,data.width,data.height,30,that.$app.$def.globalData.graphSeed);
+                    }
+                    else{
+                        graph.init(5,5,data.width,data.height,30,that.mapSeed);
+                    }
+                    that.$app.$def.globalData.graph = graph
+                    if(that.firstInit){
+                        var endPos = "["+(graph.data.levels-1)+",0]"
+                        fetch.fetch({
+                            url:this.$app.$def.url+":20002/map/setEndPos",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "userid":this.$app.$def.UserData.UserId,
+                                "endPos":endPos
+                            },
+                        }).then(Response=>{
+                            console.log(Response)
+                            that.mapEndPos=[(graph.data.levels-1),0]
+                        }).catch(Error=>{
+                            console.error(Error)
+                        })
+                    }
+                    console.log(graph)
+                    //检查是否在战斗
+                    that.drawMap();
+                    that.clickEnable=true;
+                }
             })
         }
-    },
-    onReady() {
 
-    },
-    onShow() {
-        let that = this;
 
-        this.$element('bgcanvas').getBoundingClientRect({
-            success:(data)=>{
-
-                graph.init(5,5,data.width,data.height,30,that.$app.$def.globalData.graphSeed);
-                that.$app.$def.globalData.graph = graph
-                console.log(graph)
-                //检查是否在战斗
-                that.drawMap();
-            }
-        })
         
     },
     
@@ -148,38 +240,70 @@ export default{
         ctx.closePath();
     },
     startGame(e){
-        
-        var selectd =  this.handleClick(e)
-        var news = this.curPos[0]+"-"+this.curPos[1]
-        if(selectd){
-            if(selectd[1][2]===news){
-                console.log("start game")
+        if(this.clickEnable){
+            let that = this;
+            console.log(this.mapEndPos)
+            var selectd =  this.handleClick(e)
+            var news = this.curPos[0]+"-"+this.curPos[1]
+            if(selectd){
 
-                let enterPos = "["+selectd[0][0]+","+selectd[0][1]+"]"
-                //console.log(enterPos)
-                
-                fetch.fetch({
-                    url:this.$app.$def.url+":20002/battle/initBattle",
-                    method:"POST",
-                    header:{
-                        "Content-Type":"application/json"
-                    },
-                    data:{
-                        "userid":this.$app.$def.UserData.UserId,
-                        "mapid":this.$app.$def.globalData.mapid,
-                        "enter_pos":enterPos,
-                    },
+                var flagIn = false;
+                for(var i = 2;i<selectd[1].length;i++){
+                    if(selectd[1][i]===news){
+                        flagIn=true;
+                    }
+                }
+                if(flagIn){
+                    console.log("start game")
 
-                }).then((Response)=>{
-                    //console.log(Response);
-                    var data = JSON.parse(Response.data.data).data;
-                    //console.log(data);
-                    router.replace({uri:"/pages/Battle",params:{initParams:data}});
-                }).catch(e=>{
-                    console.error(e)
-                })
+                    let enterPos = "["+selectd[0][0]+","+selectd[0][1]+"]"
+                    //console.log(enterPos)
+                    if(selectd[0][0]==that.mapEndPos[0]&&selectd[0][1]==that.mapEndPos[1]){
+                        fetch.fetch({
+                            url:this.$app.$def.url+":20002/battle/initBattleBoss",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "userid":this.$app.$def.UserData.UserId,
+                                "mapid":this.$app.$def.globalData.mapid,
+                                "enter_pos":enterPos,
+                            },
 
-                
+                        }).then((Response)=>{
+                            //console.log(Response);
+                            var data = JSON.parse(Response.data.data).data;
+                            //console.log(data);
+                            router.replace({uri:"/pages/Battle",params:{initParams:data}});
+                        }).catch(e=>{
+                            console.error(e)
+                        })
+                    }else{
+                        fetch.fetch({
+                            url:this.$app.$def.url+":20002/battle/initBattle",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "userid":this.$app.$def.UserData.UserId,
+                                "mapid":this.$app.$def.globalData.mapid,
+                                "enter_pos":enterPos,
+                            },
+
+                        }).then((Response)=>{
+                            //console.log(Response);
+                            var data = JSON.parse(Response.data.data).data;
+                            //console.log(data);
+                            router.replace({uri:"/pages/Battle",params:{initParams:data}});
+                        }).catch(e=>{
+                            console.error(e)
+                        })
+                    }
+
+                    
+                }
             }
         }
     },
