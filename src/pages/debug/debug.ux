@@ -1,111 +1,154 @@
 
 <template>
-    <div></div>
-    
+    <div>
+        <div class="myB" style="background-color: #00ffff;" onclick="click">
+
+        </div>
+        <div class="myB" onclick="login">
+
+        </div>
+    </div>
+
 </template>
 
 <script>
+import cipher from '@system.cipher'
+import fetch from "@system.fetch"
 export default {
     data(){
         return {
-            canSelectCards:[
-                {
-                    id:0,
-                    cardid:1,
-                    width:150,
-                    cardName:"攻击",
-                    cardCost:"1",
-                    cardDc:"普通攻击"
-                },
-                {
-                    id:1,
-                    cardid:2,
-                    width:150,
-                    cardName:"防御",
-                    cardCost:"1",
-                    cardDc:"普通防御"
-                },
-                {
-                    id:2,
-                    cardid:3,
-                    width:150,
-                    cardName:"技能",
-                    cardCost:"1",
-                    cardDc:"普通技能"
-                },
-            ],
-            allCards:[
-                {
-                    id:0,
-                    cardid:1,
-                    width:150,
-                    cardName:"攻击",
-                    cardCost:"1",
-                    cardDc:"普通攻击"
-                },
-                {
-                    id:1,
-                    cardid:2,
-                    width:150,
-                    cardName:"防御",
-                    cardCost:"1",
-                    cardDc:"普通防御"
-                },
-                {
-                    id:2,
-                    cardid:3,
-                    width:150,
-                    cardName:"技能",
-                    cardCost:"1",
-                    cardDc:"普通技能"
-                },
-                                {
-                    id:3,
-                    cardid:3,
-                    width:150,
-                    cardName:"技能",
-                    cardCost:"1",
-                    cardDc:"普通技能"
-                },
-                                {
-                    id:4,
-                    cardid:3,
-                    width:150,
-                    cardName:"技能",
-                    cardCost:"1",
-                    cardDc:"普通技能"
-                },
-                                {
-                    id:5,
-                    cardid:3,
-                    width:150,
-                    cardName:"技能",
-                    cardCost:"1",
-                    cardDc:"普通技能"
-                },
-                {
-                    id:6,
-                    cardid:3,
-                    width:150,
-                    cardName:"技能",
-                    cardCost:"1",
-                    cardDc:"普通技能"
-                },
-                {
-                    id:7,
-                    cardid:3,
-                    width:150,
-                    cardName:"技能",
-                    cardCost:"1",
-                    cardDc:"普通技能"
-                },
-            ]
+            username:"test3523",
+            password:"hello1"
         }
+    },
+    login(){
+        let that = this;
+        var paras={
+            url:this.$app.$def.url+":20002/auth/getPublicKey",
+            method:"POST",
+            header:{
+                "Content-Type":"application/json"
+            },
+            data:{
+                "username":this.username,
+            },
+        }
+        fetch.fetch(paras).then(Response=>{
+            var retData = JSON.parse(Response.data.data);
+            if(retData.code==0){
+                //用户名存在
+                cipher.rsa({
+                    action: 'encrypt',
+                    //待加密的文本内容
+                    text: that.password,
+                    //base64编码后的加密公钥
+                    key:retData.data,
+                    success: function(data) {
+                        let pwd = data.text
+                        fetch.fetch({
+                            url:that.$app.$def.url+":20002/auth/logging",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "username":that.username,
+                                "password":pwd,
+                            },
+                        }).then(Response=>{
+                            var resData = JSON.parse(Response.data.data)
+                            console.log(resData)
+                            if(resData.code==0){
+                                //成功登录
+
+                                console.log("login")
+                            }else{
+                                //登录失败
+                                console.log("login failed")
+                            }
+                        }).catch(Error=>{
+                            console.error(Error);
+                        })
+                    },
+                    fail: function(data, code) {
+                        console.log(`### cipher.rsa fail ### ${code}: ${data}`)
+                    }
+                })
+
+            }
+            else{
+
+            }
+
+        }).catch(Error=>{
+            console.error(Error)
+        })
+    },
+    click() {
+        let that = this;
+        var paras={
+            url:this.$app.$def.url+":20002/auth/signEnsureUserName",
+            method:"POST",
+            header:{
+                "Content-Type":"application/json"
+            },
+            data:{
+                "username":this.username,
+            },
+        }
+        fetch.fetch(paras).then(Response=>{
+            var retData = JSON.parse(Response.data.data)
+            if(retData.code==2){
+                //未注册
+                cipher.rsa({
+                action: 'encrypt',
+                //待加密的文本内容
+                text: that.password,
+                //base64编码后的加密公钥
+                key:retData.data,
+                    success: function(data) {
+                        let pwd = data.text
+                        fetch.fetch({
+                            url:that.$app.$def.url+":20002/auth/sign",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "username":that.username,
+                                "password":pwd,
+                            },
+                        }).then(Response=>{
+                            var rData = JSON.parse(Response.data.data)
+                            if(rData.code==2){
+                                console.log("sueccess")
+                            }else{
+                                console.log("failed")
+                            }
+                        }).catch(Error=>{
+                            console.error(Error);
+                        })
+                    },
+                    fail: function(data, code) {
+                        console.log(`### cipher.rsa fail ### ${code}: ${data}`)
+                    }
+                })
+            }else{
+                console.log("exist")
+            }
+        }).catch(Error=>{
+            console.log(Error)
+        })
     },
 
 }
 </script>
 
 <style>
+.myB{
+    height: 200px;
+    width:  200px;
     
+    border: 1px solid #000000;
+}
 </style>

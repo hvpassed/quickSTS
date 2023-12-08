@@ -43,13 +43,13 @@ export default{
                 },
             }).then(Response=>{
                 var data = JSON.parse(Response.data.data).data;
-                console.log("data:",data);
+                //console.log("data:",data);
                 if(data.existBattle==0){
                     that.curPos = JSON.parse(data.curpos);
                     that.mapSeed = data.seed
                     that.$element('bgcanvas').getBoundingClientRect({
                         success:(data)=>{
-                            console.log("curpos:",that.curPos)
+                            //console.log("curpos:",that.curPos)
                             if(that.firstInit){
                                 graph.init(5,5,data.width,data.height,30,that.$app.$def.globalData.graphSeed);
                             }
@@ -71,13 +71,13 @@ export default{
                                         "endPos":endPos
                                     },
                                 }).then(Response=>{
-                                    console.log(Response)
+                                    //console.log(Response)
                                     that.mapEndPos=[(graph.data.levels-1),0]
                                 }).catch(Error=>{
                                     console.error(Error)
                                 })
                             }
-                            console.log(graph)
+                            //console.log(graph)
                             //检查是否在战斗
                             that.drawMap();
                             that.clickEnable=true;
@@ -134,13 +134,13 @@ export default{
                                 "endPos":endPos
                             },
                         }).then(Response=>{
-                            console.log(Response)
+                            //console.log(Response)
                             that.mapEndPos=[(graph.data.levels-1),0]
                         }).catch(Error=>{
                             console.error(Error)
                         })
                     }
-                    console.log(graph)
+                    //console.log(graph)
                     //检查是否在战斗
                     that.drawMap();
                     that.clickEnable=true;
@@ -242,7 +242,7 @@ export default{
     startGame(e){
         if(this.clickEnable){
             let that = this;
-            console.log(this.mapEndPos)
+            //console.log(this.mapEndPos)
             var selectd =  this.handleClick(e)
             var news = this.curPos[0]+"-"+this.curPos[1]
             if(selectd){

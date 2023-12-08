@@ -22,6 +22,7 @@ import router from '@system.router'
 //import app from "../../helper/global"
 import fetch from '@system.fetch' 
 import notification from '@system.notification'
+import cipher from "@system.cipher"
 export default{
     data() {
         return {
@@ -43,124 +44,272 @@ export default{
        //console.log(this.$app.$def)
     },
     logClick(){
-        let thatrouter = router;
-        let that = this
+
+
+
+        let that = this;
         var paras={
-            url:this.$app.$def.url+":20002/auth/logging",
+            url:this.$app.$def.url+":20002/auth/getPublicKey",
             method:"POST",
             header:{
                 "Content-Type":"application/json"
             },
             data:{
                 "username":this.username,
-                "password":this.password
             },
         }
-        fetch.fetch(paras).then((response)=>{
-            try{
-                var data = JSON.parse(response.data.data)
-                
-                if(data.code==1){
-                    that.lognotice.text="用户名或密码不存在"
-                    that.lognotice.show=true;
-                }else if(data.code==0){
-                    // console.log(1)
-                    // console.log(data)
-                    // console.log(2)
-                    this.$app.$def.UserData.UserId=data.data.userid;
-                    
-                    this.$app.$def.UserData.UserName=data.data.username;
-                    if(data.data.hasmap==0){//没有地图
+        fetch.fetch(paras).then(Response=>{
+            var retData = JSON.parse(Response.data.data);
+            if(retData.code==0){
+                //用户名存在
+                cipher.rsa({
+                    action: 'encrypt',
+                    //待加密的文本内容
+                    text: that.password,
+                    //base64编码后的加密公钥
+                    key:retData.data,
+                    success: function(data) {
+                        let pwd = data.text
                         fetch.fetch({
-                            url:this.$app.$def.url+":20002/map/initMap",
+                            url:that.$app.$def.url+":20002/auth/logging",
                             method:"POST",
                             header:{
                                 "Content-Type":"application/json"
                             },
                             data:{
-                                "userid":data.data.userid,
-                            }
-                        }).then((response)=>{
+                                "username":that.username,
+                                "password":pwd,
+                            },
+                        }).then(Response=>{
+                            var resData = JSON.parse(Response.data.data)
+                            //console.log(resData)
+                            if(resData.code==0){
+                                //成功登录
+                                that.$app.$def.UserData.UserId=resData.data.userid;
+                                
+                                that.$app.$def.UserData.UserName=resData.data.username;
+                                if(resData.data.hasmap==0){//没有地图
+                                    fetch.fetch({
+                                        url:that.$app.$def.url+":20002/map/initMap",
+                                        method:"POST",
+                                        header:{
+                                            "Content-Type":"application/json"
+                                        },
+                                        data:{
+                                            "userid":resData.data.userid,
+                                        }
+                                    }).then((response)=>{
 
-                            var res = JSON.parse(response.data.data);
-                            
-                            if(res.code==0){//创建成功
-                                //console.log(res)
-                                this.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
-                                this.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
-                                this.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
-                                if(res.data.player.playing==0){
-                                    this.$app.$def.PlayerData.playing=false;
-                                }else{
-                                    this.$app.$def.PlayerData.playing=true;
+                                        var res = JSON.parse(response.data.data);
+                                        
+                                        if(res.code==0){//创建成功
+                                            //console.log(res)
+                                            that.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
+                                            that.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
+                                            that.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
+                                            if(res.data.player.playing==0){
+                                                that.$app.$def.PlayerData.playing=false;
+                                            }else{
+                                                that.$app.$def.PlayerData.playing=true;
+                                            }
+                                            that.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
+                                            that.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
+                                            that.$app.$def.PlayerData.maxhp=res.data.player.maxhp
+                                            that.$app.$def.PlayerData.nowhp=res.data.player.nowhp
+                                            that.$app.$def.PlayerData.playing=res.data.player.playing
+                                            router.push({
+                                                uri:"/pages/GameMap"
+                                            })
+                                        }else{
+                                            console.error(res.msg)
+                                        }
+                                    }).catch(err=>{ 
+                                        console.error(err);
+                                    })
+                                    //需要初始化地图
+                                    //获取地图id，种子
+                                }else{//读取地图
+                                    //console.log(data.data.userid)
+                                    fetch.fetch({
+                                        url:that.$app.$def.url+":20002/map/read",
+                                        method:"POST",
+                                        header:{
+                                            "Content-Type":"application/json"
+                                        },
+                                        data:{
+                                            "userid":resData.data.userid,
+                                        }
+                                    }).then((response)=>{
+                                        
+                                        var res = JSON.parse(response.data.data);
+                                        //console.log(res)
+                                        if(res.code==2){//读取成功
+            
+                                            that.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
+                                            that.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
+                                            that.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
+                                            if(res.data.player.playing==0){
+                                                that.$app.$def.PlayerData.playing=false;
+                                            }else{
+                                                that.$app.$def.PlayerData.playing=true;
+                                            }
+                                            that.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
+                                            that.$app.$def.PlayerData.maxhp=res.data.player.maxhp
+                                            that.$app.$def.PlayerData.nowhp=res.data.player.nowhp
+                                            that.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
+                                            that.$app.$def.PlayerData.playing=res.data.player.playing
+                                            router.push({
+                                                uri:"/pages/GameMap"
+                                            })
+                                        }else{
+                                            console.error(res.msg)
+                                        }
+                                    }).catch(err=>{ 
+                                        console.error(err);
+                                    })
                                 }
-                                this.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
-                                this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
-                                this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
-                                this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
-                                this.$app.$def.PlayerData.playing=res.data.player.playing
-                                router.push({
-                                    uri:"/pages/GameMap"
-                                })
                             }else{
-                                console.error(res.msg)
+                                that.lognotice.text="用户名或密码不存在"
+                                that.lognotice.show=true;
                             }
-                        }).catch(err=>{ 
-                            console.error(err);
+                        }).catch(Error=>{
+                            that.lognotice.text="用户名或密码不存在"
+                            that.lognotice.show=true;
                         })
-                        //需要初始化地图
-                        //获取地图id，种子
-                    }else{//读取地图
-                        //console.log(data.data.userid)
-                        fetch.fetch({
-                            url:this.$app.$def.url+":20002/map/read",
-                            method:"POST",
-                            header:{
-                                "Content-Type":"application/json"
-                            },
-                            data:{
-                                "userid":data.data.userid,
-                            }
-                        }).then((response)=>{
-                            
-                            var res = JSON.parse(response.data.data);
-                            //console.log(res)
-                            if(res.code==2){//读取成功
-  
-                                this.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
-                                this.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
-                                this.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
-                                if(res.data.player.playing==0){
-                                    this.$app.$def.PlayerData.playing=false;
-                                }else{
-                                    this.$app.$def.PlayerData.playing=true;
-                                }
-                                this.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
-                                this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
-                                this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
-                                this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
-                                this.$app.$def.PlayerData.playing=res.data.player.playing
-                                router.push({
-                                    uri:"/pages/GameMap"
-                                })
-                            }else{
-                                console.error(res.msg)
-                            }
-                        }).catch(err=>{ 
-                            console.error(err);
-                        })
+                    },
+                    fail: function(data, code) {
+                        console.log(`### cipher.rsa fail ### ${code}: ${data}`)
                     }
-
-                }
-                else{
-                    console.error(response)
-                }
-            }catch(err){
-                console.error(err)
+                })
             }
-        }).catch(err=>{
-            console.error(err);
+            else{
+                that.lognotice.text="用户名或密码不存在"
+                that.lognotice.show=true;
+            }
+        }).catch(Error=>{
+            console.error(Error)
         })
+
+
+
+        // let thatrouter = router;
+        // let that = this
+        // var paras={
+        //     url:this.$app.$def.url+":20002/auth/logging",
+        //     method:"POST",
+        //     header:{
+        //         "Content-Type":"application/json"
+        //     },
+        //     data:{
+        //         "username":this.username,
+        //         "password":this.password
+        //     },
+        // }
+        // fetch.fetch(paras).then((response)=>{
+        //     try{
+        //         var data = JSON.parse(response.data.data)
+                
+        //         if(data.code==1){
+        //             that.lognotice.text="用户名或密码不存在"
+        //             that.lognotice.show=true;
+        //         }else if(data.code==0){
+        //             // console.log(1)
+        //             // console.log(data)
+        //             // console.log(2)
+        //             this.$app.$def.UserData.UserId=data.data.userid;
+                    
+        //             this.$app.$def.UserData.UserName=data.data.username;
+        //             if(data.data.hasmap==0){//没有地图
+        //                 fetch.fetch({
+        //                     url:this.$app.$def.url+":20002/map/initMap",
+        //                     method:"POST",
+        //                     header:{
+        //                         "Content-Type":"application/json"
+        //                     },
+        //                     data:{
+        //                         "userid":data.data.userid,
+        //                     }
+        //                 }).then((response)=>{
+
+        //                     var res = JSON.parse(response.data.data);
+                            
+        //                     if(res.code==0){//创建成功
+        //                         //console.log(res)
+        //                         this.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
+        //                         this.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
+        //                         this.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
+        //                         if(res.data.player.playing==0){
+        //                             this.$app.$def.PlayerData.playing=false;
+        //                         }else{
+        //                             this.$app.$def.PlayerData.playing=true;
+        //                         }
+        //                         this.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
+        //                         this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
+        //                         this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
+        //                         this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
+        //                         this.$app.$def.PlayerData.playing=res.data.player.playing
+        //                         router.push({
+        //                             uri:"/pages/GameMap"
+        //                         })
+        //                     }else{
+        //                         console.error(res.msg)
+        //                     }
+        //                 }).catch(err=>{ 
+        //                     console.error(err);
+        //                 })
+        //                 //需要初始化地图
+        //                 //获取地图id，种子
+        //             }else{//读取地图
+        //                 //console.log(data.data.userid)
+        //                 fetch.fetch({
+        //                     url:this.$app.$def.url+":20002/map/read",
+        //                     method:"POST",
+        //                     header:{
+        //                         "Content-Type":"application/json"
+        //                     },
+        //                     data:{
+        //                         "userid":data.data.userid,
+        //                     }
+        //                 }).then((response)=>{
+                            
+        //                     var res = JSON.parse(response.data.data);
+        //                     //console.log(res)
+        //                     if(res.code==2){//读取成功
+  
+        //                         this.$app.$def.globalData.curPos=JSON.parse(res.data.mapEntity.currentposition);
+        //                         this.$app.$def.globalData.graphSeed=res.data.mapEntity.seed;
+        //                         this.$app.$def.globalData.mapid=res.data.mapEntity.mapid;
+        //                         if(res.data.player.playing==0){
+        //                             this.$app.$def.PlayerData.playing=false;
+        //                         }else{
+        //                             this.$app.$def.PlayerData.playing=true;
+        //                         }
+        //                         this.$app.$def.PlayerData.playat=JSON.parse(res.data.player.playPos)
+        //                         this.$app.$def.PlayerData.maxhp=res.data.player.maxhp
+        //                         this.$app.$def.PlayerData.nowhp=res.data.player.nowhp
+        //                         this.$app.$def.PlayerData.cardids=JSON.parse(res.data.player.cardids)
+        //                         this.$app.$def.PlayerData.playing=res.data.player.playing
+        //                         router.push({
+        //                             uri:"/pages/GameMap"
+        //                         })
+        //                     }else{
+        //                         console.error(res.msg)
+        //                     }
+        //                 }).catch(err=>{ 
+        //                     console.error(err);
+        //                 })
+        //             }
+
+        //         }
+        //         else{
+        //             console.error(response)
+        //         }
+        //     }catch(err){
+        //         console.error(err)
+        //     }
+        // }).catch(err=>{
+        //     console.error(err);
+        // })
         // router.push({
         //     uri:"/pages/GameMap"
         // })
@@ -172,38 +321,97 @@ export default{
         this.signnotice.show=false;
     },
     signupClick(){
-        let that = this
+        let that = this;
         var paras={
-            url:this.$app.$def.url+":20002/auth/sign",
+            url:this.$app.$def.url+":20002/auth/signEnsureUserName",
             method:"POST",
             header:{
                 "Content-Type":"application/json"
             },
             data:{
                 "username":this.username,
-                "password":this.password
             },
         }
-        fetch.fetch(paras).then((response)=>{
-            try{
-                
-                var data = JSON.parse(response.data.data)
-                
-                if(data.code==3){
-                    that.signnotice.text="用户名已存在"
-                }else if(data.code==2){
-
-                    that.signnotice.text="注册成功,请登录"
-                }else{
-                    console.error(response)
-                }
-                that.signnotice.show=true;
-            }catch(err){
-                console.error(err)
+        fetch.fetch(paras).then(Response=>{
+            var retData = JSON.parse(Response.data.data)
+            if(retData.code==2){
+                //未注册
+                cipher.rsa({
+                action: 'encrypt',
+                //待加密的文本内容
+                text: that.password,
+                //base64编码后的加密公钥
+                key:retData.data,
+                    success: function(data) {
+                        let pwd = data.text
+                        fetch.fetch({
+                            url:that.$app.$def.url+":20002/auth/sign",
+                            method:"POST",
+                            header:{
+                                "Content-Type":"application/json"
+                            },
+                            data:{
+                                "username":that.username,
+                                "password":pwd,
+                            },
+                        }).then(Response=>{
+                            var rData = JSON.parse(Response.data.data)
+                            if(rData.code==2){
+                                that.signnotice.text="注册成功,请登录"
+                            }else{
+                                that.signnotice.text="未知错误"
+                            }
+                            that.signnotice.show=true;
+                        }).catch(Error=>{
+                            console.error(Error);
+                        })
+                    },
+                    fail: function(data, code) {
+                        console.log(`### cipher.rsa fail ### ${code}: ${data}`)
+                    }
+                })
+            }else{
+                that.signnotice.text="用户名已存在"
             }
-        }).catch(err=>{
-            console.error(err);
+        }).catch(Error=>{
+            console.log(Error)
         })
+
+
+
+
+        // let that = this
+        // var paras={
+        //     url:this.$app.$def.url+":20002/auth/sign",
+        //     method:"POST",
+        //     header:{
+        //         "Content-Type":"application/json"
+        //     },
+        //     data:{
+        //         "username":this.username,
+        //         "password":this.password
+        //     },
+        // }
+        // fetch.fetch(paras).then((response)=>{
+        //     try{
+                
+        //         var data = JSON.parse(response.data.data)
+                
+        //         if(data.code==3){
+        //             that.signnotice.text="用户名已存在"
+        //         }else if(data.code==2){
+
+        //             that.signnotice.text="注册成功,请登录"
+        //         }else{
+        //             console.error(response)
+        //         }
+        //         that.signnotice.show=true;
+        //     }catch(err){
+        //         console.error(err)
+        //     }
+        // }).catch(err=>{
+        //     console.error(err);
+        // })
     },
     usernameChanged(e){
         
