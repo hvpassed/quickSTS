@@ -28,7 +28,9 @@
     { 
       "name": "system.notification" 
     },
-    { "name": "system.cipher" }
+    { "name": "system.cipher" }, 
+    { "name": "system.vibrator" },
+    { "name": "system.shortcut" }
   ],
   "permissions": [
     {

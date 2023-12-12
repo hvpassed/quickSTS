@@ -1,23 +1,44 @@
-
+<import name="q-notice" src="qaui/src/components/notice/index"></import>
 <template>
     <div class="wrapper">
-        
+        <q-notice if={{notice.show}} notice-text={{notice.text}} type={{lognotice.type}} right-icon-type="link" onlink-tap="noticeClose"></q-notice>
         <input type="button" class="btn" value="开始游戏" onclick="logClick">
-        <image class="bg" src="/assets/images/menu/background.png" ></image>
+        <input type="button" class="btn" value="创建图标" onclick="createIcon">
+        <!-- <image class="bg" src="/assets/images/menu/background.png" ></image> -->
 
     </div>
     
 </template>
 <script>
 import router from '@system.router'
-
+import shortcut from '@system.shortcut'
 export default {
+    data(){
+        return {
+            notice:{show:false,type:"normal",text:"创建成功"}
+        }
+    },
     onInit() {
 
     },
     logClick(){
         router.push({
             uri:"/pages/log",
+        })
+    },
+    noticeClose(){
+        this.notice.show=false;
+    },
+    createIcon(){
+        let that = this;
+        shortcut.install({
+            success: function() {
+                console.log('创建成功')
+                that.notice.show=true;
+            },
+            fail: function(data, code) {
+                
+            }
         })
     }
 }
@@ -31,7 +52,9 @@ export default {
     position:relative;
     top: 0px;
     left: 0px;
-    
+    background-image: url("/assets/images/menu/background.png");
+    display: flex;
+    flex-direction: column;
 }
 .bg{
     width: 100%;
@@ -40,7 +63,7 @@ export default {
     z-index: 0;
 }
 .btn{
-    position:absolute;
+    margin: 20px;
     width: 450px;
     height: 80px;
     border-radius: 40px;

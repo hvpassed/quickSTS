@@ -64,6 +64,7 @@
 import global from "../../helper/global.js";
 import fetch from '@system.fetch' 
 import router from '@system.router'
+import vibrator from '@system.vibrator'
 export default {
   data() {
     return {
@@ -477,7 +478,12 @@ export default {
     return arr;
   },
   sendBtnClicked() {
-    
+    vibrator.vibrate({
+      mode: 'long'
+    })
+    vibrator.vibrate({
+      mode: 'long'
+    })
     if (this.selected != null) {
       
       this.sendCards(this.selected)
@@ -532,7 +538,8 @@ export default {
       ret.defend=true;
       ret.text = aIntent.defend;
     }else{
-
+      ret.skill=true;
+      ret.text = "";
     }
     return ret;
   },
@@ -617,6 +624,12 @@ export default {
     })
   },
   endTurn(){
+    vibrator.vibrate({
+      mode: 'long'
+    })
+    vibrator.vibrate({
+      mode: 'long'
+    })
     let that = this;
     fetch.fetch({
       url:this.$app.$def.url+":20002/battle/endTurn",
