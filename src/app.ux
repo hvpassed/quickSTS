@@ -17,7 +17,7 @@ hook2global.$router =$router
 
 export default {
   onCreate() {},
-  url:"http://8.130.38.221",
+  url:"http://10.129.5.123",
   globalData:{
     graphSeed:0,
     curPos:[-1,0],

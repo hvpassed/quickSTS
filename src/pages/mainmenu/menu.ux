@@ -1,9 +1,9 @@
-<import name="q-notice" src="qaui/src/components/notice/index"></import>
+<!-- <import name="q-notice" src="qaui/src/components/notice/index"></import> -->
 <template>
     <div class="wrapper">
-        <q-notice if={{notice.show}} notice-text={{notice.text}} type={{lognotice.type}} right-icon-type="link" onlink-tap="noticeClose"></q-notice>
+        <!-- <q-notice if={{notice.show}} notice-text={{notice.text}} type={{lognotice.type}} right-icon-type="link" onlink-tap="noticeClose"></q-notice> -->
         <input type="button" class="btn" value="开始游戏" onclick="logClick">
-        <input type="button" class="btn" value="创建图标" onclick="createIcon">
+        <input type="button" class="btn" value="游戏文档" onclick="createIcon">
         <!-- <image class="bg" src="/assets/images/menu/background.png" ></image> -->
 
     </div>
@@ -11,11 +11,12 @@
 </template>
 <script>
 import router from '@system.router'
-import shortcut from '@system.shortcut'
+
+import webview from '@system.webview'
 export default {
     data(){
         return {
-            notice:{show:false,type:"normal",text:"创建成功"}
+            // notice:{show:false,type:"normal",text:"创建成功"}
         }
     },
     onInit() {
@@ -27,19 +28,14 @@ export default {
         })
     },
     noticeClose(){
-        this.notice.show=false;
+        // this.notice.show=false;
     },
     createIcon(){
-        let that = this;
-        shortcut.install({
-            success: function() {
-                console.log('创建成功')
-                that.notice.show=true;
-            },
-            fail: function(data, code) {
-                
-            }
+        webview.loadUrl({
+        url: 'https://docs.qq.com/doc/p/2747ae5b8c5784ff88c88cb770cee63efbb4c8bd',
+        allowthirdpartycookies: true
         })
+       
     }
 }
 </script>

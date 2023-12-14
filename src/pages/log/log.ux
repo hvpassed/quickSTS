@@ -78,7 +78,7 @@ export default{
                             },
                             data:{
                                 "username":that.username,
-                                "password":pwd,
+                                "password":that.password,
                             },
                         }).then(Response=>{
                             var resData = JSON.parse(Response.data.data)
@@ -334,6 +334,7 @@ export default{
         }
         fetch.fetch(paras).then(Response=>{
             var retData = JSON.parse(Response.data.data)
+            //console.log(retData)
             if(retData.code==2){
                 //未注册
                 cipher.rsa({
@@ -343,6 +344,7 @@ export default{
                 //base64编码后的加密公钥
                 key:retData.data,
                     success: function(data) {
+                        //console.log(data)
                         let pwd = data.text
                         fetch.fetch({
                             url:that.$app.$def.url+":20002/auth/sign",
@@ -352,10 +354,11 @@ export default{
                             },
                             data:{
                                 "username":that.username,
-                                "password":pwd,
+                                "password":that.password,//在真机上，生成的pwd格式不对，解析会出错
                             },
                         }).then(Response=>{
                             var rData = JSON.parse(Response.data.data)
+                            //console.log(rData)
                             if(rData.code==2){
                                 that.signnotice.text="注册成功,请登录"
                             }else{

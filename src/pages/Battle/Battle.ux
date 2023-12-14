@@ -213,6 +213,9 @@ export default {
 
   },
   sendCards(id) {
+    vibrator.vibrate({
+      mode: 'long'
+    })
     if(id==null)return;
     let cardObj = null;
     let that = this;
@@ -478,12 +481,7 @@ export default {
     return arr;
   },
   sendBtnClicked() {
-    vibrator.vibrate({
-      mode: 'long'
-    })
-    vibrator.vibrate({
-      mode: 'long'
-    })
+
     if (this.selected != null) {
       
       this.sendCards(this.selected)
@@ -627,9 +625,7 @@ export default {
     vibrator.vibrate({
       mode: 'long'
     })
-    vibrator.vibrate({
-      mode: 'long'
-    })
+ 
     let that = this;
     fetch.fetch({
       url:this.$app.$def.url+":20002/battle/endTurn",

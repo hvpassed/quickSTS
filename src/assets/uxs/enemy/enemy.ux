@@ -29,7 +29,7 @@
     <image
       if={{TYPE.ZOMBIE}}
       class="enemyimg"
-      src="../../images/enemy/zombie/movingzombie.gif"
+      src="../../images/enemy/zombie/11.gif"
       style="height:{{height}}px;"
     ></image>
     <image
