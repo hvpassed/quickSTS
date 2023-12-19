@@ -242,6 +242,7 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background-image: url("../../assets/images/menu/page_background.png");
     /* background-color: #00ffff; */
 }
 .selectCardBlock{

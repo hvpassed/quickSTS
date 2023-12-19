@@ -10,6 +10,7 @@
 import graph from "../../helper/graph"
 import fetch from '@system.fetch' 
 import router from '@system.router'
+import audio from '@system.audio'
 export default{
     data(){
         return {
@@ -22,7 +23,9 @@ export default{
         }
     },
     onInit() {
-
+        audio.src='http://10.129.5.123:2019/STS_Shrine_NewMix_v1.ogg'
+        audio.loop=true
+        audio.play()
     },
     onReady() {
 
@@ -346,7 +349,7 @@ export default{
     height: 2000px;
     top:0px;
     left: 0px;
-    background-image:url("../../assets/images/map/midbg.png");
+    background-image:url("../../assets/images/map/bk.png");
     background-size:contain;
     background-repeat:repeat-y;
     /*overflow: hidden;*/

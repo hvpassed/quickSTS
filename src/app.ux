@@ -14,10 +14,11 @@ hook2global.$utils = $utils
 hook2global.$apis = $apis
 hook2global.$notification = $notification
 hook2global.$router =$router
-
+import audio from '@system.audio'
 export default {
   onCreate() {},
   url:"http://10.129.5.123",
+  audio:audio,
   globalData:{
     graphSeed:0,
     curPos:[-1,0],
@@ -39,7 +40,8 @@ export default {
   CardData:{
     allCards:null,
     canSelectCards:null,
-  }
+  },
+ 
 }
 </script>
 <style>

@@ -13,6 +13,10 @@
  
 <template>
   <div class="wrapper">
+    <div if=false class="fm" style="position:fixed;width:200px;height:200px;">
+      <input  type="text" model:value="{{selectName}}" onchange="textinput()"></input>
+      <input  type="button" value="登录" onclick="nameSend"/>
+    </div>
     <player prop-player={{Player}} class="playerblock"></player>
     <image src="../../assets/images/button/base1.png" id="drawPile" onclick="drawPileShow"></image>
     <image src="../../assets/images/button/base2.png" id="dicordPile" onclick="dicordPileShow"></image>
@@ -61,6 +65,7 @@
   </div>
 </template>
 <script>
+import audio from '@system.audio'
 import global from "../../helper/global.js";
 import fetch from '@system.fetch' 
 import router from '@system.router'
@@ -102,9 +107,12 @@ export default {
       cards:[], //[{id,cardid,width,cardName,cardCost,cardDc}]
       drawCards:[],
       discordCards:[],
+      selectName:"",
     };
   },
   onInit() {
+    audio.src="http://10.129.5.123:2019/STS_Level1-2_v2.mp3"
+    audio.loop=true
     router.clear();
     //console.log(this.initParams)
     this.initParams = JSON.parse(this.initParams)
@@ -205,8 +213,10 @@ export default {
     })
     
     //this.initParams[""];
+    audio.play()
 
-
+  
+  
   },
   handlecardSelecting(e) {
     this.selected = e.detail.id;
@@ -214,7 +224,7 @@ export default {
   },
   sendCards(id) {
     vibrator.vibrate({
-      mode: 'long'
+      mode: 'short'
     })
     if(id==null)return;
     let cardObj = null;
@@ -305,6 +315,23 @@ export default {
     })
 
     //this.cards = this.del(this.cards, id)
+  },
+  nameSend(func_name){
+    let func_select = null;
+    let that =this;
+    
+    //cards:[], //[{id,cardid,width,cardName,cardCost,cardDc}]
+    this.cards.forEach((element) => {
+      if(element.cardName==func_name){
+        if(func_select==null){
+          func_select=element.id;
+        }
+ 
+      }
+    })
+    if(func_select){
+      this.sendCards(func_select)
+    }
   },
   resetPlayer(playerObj){
       //     Player: {
@@ -571,11 +598,18 @@ export default {
             "userid":that.$app.$def.UserData.UserId,
             "mapid":that.$app.$def.globalData.mapid
           },
-        }).then(Response=>{
+        }).then(Response2=>{
+ 
+          let playerData = JSON.parse(Response2.data.data).data
+          let cardPlayed = playerData.cardplay
+          let damageout = playerData.damageout
+          let damagerecive = playerData.damagerecive;
+          
           router.replace({
             uri:"/pages/WinPage",
             params:{
-              text:"恭喜!"
+              text:"恭喜!\n共出牌:"+cardPlayed+"张\n共造成伤害:"+damageout+"\n共收到伤害:"+damagerecive,
+              win:true
           }
         })
         })
@@ -623,7 +657,7 @@ export default {
   },
   endTurn(){
     vibrator.vibrate({
-      mode: 'long'
+      mode: 'short'
     })
  
     let that = this;
@@ -678,13 +712,16 @@ export default {
       router.replace({
         uri:"/pages/WinPage",
         params:{
-          text:"恭喜!"
+          text:"游戏结束"
         }
       })
     }).catch(Error=>{
       console.error(Error);
     })
-  }
+  },
+  textinput(e){
+    this.selectName = e.text;
+  },
 }
 </script>
 <style>
@@ -710,7 +747,7 @@ export default {
   bottom: 0px;
   left: 0px;
 
-  background-color:rgba(255, 255, 255, 0.7);
+  /* background-color:rgba(255, 255, 255, 0.7); */
   border-radius: 8px;
   border: 1px solid #E3E5E7;
 

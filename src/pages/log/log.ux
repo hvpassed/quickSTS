@@ -20,6 +20,7 @@
 <script>
 import router from '@system.router'
 //import app from "../../helper/global"
+import audio from '@system.audio'
 import fetch from '@system.fetch' 
 import notification from '@system.notification'
 import cipher from "@system.cipher"
@@ -42,6 +43,10 @@ export default{
     },
     onInit() {
        //console.log(this.$app.$def)
+ 
+        audio.loop=true
+        audio.src="http://10.129.5.123:2019/STS_Merchant_v2.ogg"
+        audio.play()
     },
     logClick(){
 

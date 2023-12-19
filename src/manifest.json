@@ -30,7 +30,8 @@
     },
     { "name": "system.cipher" }, 
     { "name": "system.vibrator" },
-    { "name": "system.shortcut" }
+    { "name": "system.shortcut" },
+    { "name": "system.audio" }
   ],
   "permissions": [
     {

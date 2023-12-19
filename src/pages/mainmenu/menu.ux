@@ -10,8 +10,9 @@
     
 </template>
 <script>
+import audio from '@system.audio'
 import router from '@system.router'
-
+ 
 import webview from '@system.webview'
 export default {
     data(){
@@ -21,8 +22,14 @@ export default {
     },
     onInit() {
 
+        audio.loop=true
+        audio.src="http://10.129.5.123:2019/STS_MenuTheme_NewMix_v1.mp3"
+        audio.play()
     },
+
     logClick(){
+ 
+        audio.stop()
         router.push({
             uri:"/pages/log",
         })

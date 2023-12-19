@@ -1,6 +1,7 @@
 <template>
     <div class = "winPagewrapper" onclick="returnMainMenu">
-        <text id="WinPageText" value="{{text}}"></text>        
+        <text id="WinPageText" value="{{text}}"></text>      
+  
     </div>
 </template>
 
@@ -11,6 +12,7 @@ export default {
     data(){
         return {
             text:"恭喜！",
+            win:false,
         }
     },
     onInit() {
@@ -28,9 +30,10 @@ export default {
 <style>
 
 .winPagewrapper{
-    background-color: #7fffd4;
+ 
     display: flex;
     justify-content: center;
+    background-image: url("../../assets/images/menu/page_background.png");
 }
 #WinPageText{
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
